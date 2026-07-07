@@ -15,14 +15,14 @@ if (!fs.existsSync(iconsDir)) {
 
 // Icon sizes to generate
 const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
-const inputSvg = path.join(__dirname, '../public/favicon.svg');
+const inputImage = path.join(__dirname, '../public/favicon.png');
 
 // Generate each icon size
 async function generateIcons() {
   try {
     for (const size of iconSizes) {
       const outputFile = path.join(iconsDir, `icon-${size}x${size}.png`);
-      await sharp(inputSvg)
+      await sharp(inputImage)
         .resize(size, size)
         .png()
         .toFile(outputFile);
@@ -30,7 +30,7 @@ async function generateIcons() {
     }
     
     // Also create a favicon.ico
-    await sharp(inputSvg)
+    await sharp(inputImage)
       .resize(64, 64)
       .toFile(path.join(__dirname, '../public/favicon.ico'));
     console.log('Generated favicon.ico');
