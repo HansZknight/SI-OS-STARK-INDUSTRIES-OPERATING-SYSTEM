@@ -1,0 +1,297 @@
+/* Fullscreen Mode Styles */
+:fullscreen {
+  background: #0a0a0f;
+}
+
+:-webkit-full-screen {
+  background: #0a0a0f;
+}
+
+:-moz-full-screen {
+  background: #0a0a0f;
+}
+
+:-ms-fullscreen {
+  background: #0a0a0f;
+}
+
+/* Fullscreen container adjustments */
+:fullscreen body {
+  margin: 0;
+  padding: 20px;
+  background: #0a0a0f;
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+}
+
+:-webkit-full-screen body {
+  margin: 0;
+  padding: 20px;
+  background: #0a0a0f;
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+}
+
+:-moz-full-screen body {
+  margin: 0;
+  padding: 20px;
+  background: #0a0a0f;
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+}
+
+:-ms-fullscreen body {
+  margin: 0;
+  padding: 20px;
+  background: #0a0a0f;
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+}
+
+/* Fullscreen React root adjustments */
+:fullscreen #root {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+:-webkit-full-screen #root {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+:-moz-full-screen #root {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+:-ms-fullscreen #root {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Main app container in fullscreen */
+:fullscreen .stark-os-app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:-webkit-full-screen .stark-os-app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:-moz-full-screen .stark-os-app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:-ms-fullscreen .stark-os-app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* HUD Panel fullscreen adjustments - FIXED */
+:fullscreen .hud-panel {
+  border-radius: 12px !important;
+  border: 1px solid rgba(0, 212, 255, 0.2) !important;
+  height: auto !important;
+  max-height: calc(100vh - 40px) !important;
+  width: auto !important;
+  max-width: calc(100vw - 40px) !important;
+  min-height: 400px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  position: relative !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+:-webkit-full-screen .hud-panel {
+  border-radius: 12px !important;
+  border: 1px solid rgba(0, 212, 255, 0.2) !important;
+  height: auto !important;
+  max-height: calc(100vh - 40px) !important;
+  width: auto !important;
+  max-width: calc(100vw - 40px) !important;
+  min-height: 400px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  position: relative !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+:-moz-full-screen .hud-panel {
+  border-radius: 12px !important;
+  border: 1px solid rgba(0, 212, 255, 0.2) !important;
+  height: auto !important;
+  max-height: calc(100vh - 40px) !important;
+  width: auto !important;
+  max-width: calc(100vw - 40px) !important;
+  min-height: 400px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  position: relative !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+:-ms-fullscreen .hud-panel {
+  border-radius: 12px !important;
+  border: 1px solid rgba(0, 212, 255, 0.2) !important;
+  height: auto !important;
+  max-height: calc(100vh - 40px) !important;
+  width: auto !important;
+  max-width: calc(100vw - 40px) !important;
+  min-height: 400px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  position: relative !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Ensure all child elements are visible in fullscreen */
+:fullscreen .hud-panel > * {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+:-webkit-full-screen .hud-panel > * {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+:-moz-full-screen .hud-panel > * {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+:-ms-fullscreen .hud-panel > * {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Fullscreen button animation */
+.fullscreen-button {
+  transition: all 0.2s ease;
+}
+
+.fullscreen-button:hover {
+  transform: scale(1.05);
+}
+
+.fullscreen-button:active {
+  transform: scale(0.95);
+}
+
+/* Fullscreen indicator */
+.fullscreen-indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: #00d4ff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.fullscreen-indicator.show {
+  opacity: 1;
+}
+
+/* Hide scrollbar in fullscreen */
+:fullscreen ::-webkit-scrollbar {
+  width: 4px;
+}
+
+:fullscreen ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+:fullscreen ::-webkit-scrollbar-thumb {
+  background: rgba(0, 212, 255, 0.3);
+  border-radius: 2px;
+}
+
+:fullscreen ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 212, 255, 0.5);
+}
+
+/* Grid layout adjustments in fullscreen */
+:fullscreen .grid {
+  display: grid !important;
+}
+
+:fullscreen .flex {
+  display: flex !important;
+}
+
+:fullscreen .flex-col {
+  flex-direction: column !important;
+}
+
+/* Ensure proper spacing in fullscreen */
+:fullscreen .space-y-4 > * + * {
+  margin-top: 1rem !important;
+}
+
+:fullscreen .gap-3 {
+  gap: 0.75rem !important;
+}
+
+/* Chat interface specific fixes */
+:fullscreen .flex-col.h-\[600px\] {
+  height: auto !important;
+  max-height: calc(100vh - 40px) !important;
+}
+
+:-webkit-full-screen .flex-col.h-\[600px\] {
+  height: auto !important;
+  max-height: calc(100vh - 40px) !important;
+}
+
+:-moz-full-screen .flex-col.h-\[600px\] {
+  height: auto !important;
+  max-height: calc(100vh - 40px) !important;
+}
+
+:-ms-fullscreen .flex-col.h-\[600px\] {
+  height: auto !important;
+  max-height: calc(100vh - 40px) !important;
+}

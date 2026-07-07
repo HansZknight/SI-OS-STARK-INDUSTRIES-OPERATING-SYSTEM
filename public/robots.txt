@@ -1,0 +1,7 @@
+# STARK INDUSTRIES OS - Robots Configuration
+# This file is used to control search engine crawlers
+
+User-agent: *
+Allow: /
+
+Sitemap: https://stark-industries-os.vercel.app/sitemap.xml

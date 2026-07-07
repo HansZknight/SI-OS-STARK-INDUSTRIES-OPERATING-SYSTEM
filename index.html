@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- STARK INDUSTRIES OPERATING SYSTEM - Entry Point                  -->
+    <!-- Classification: PROPRIETARY - STARK INDUSTRIES                   -->
+    <!-- Version: 1.0.0 | Codename: J.A.R.V.I.S                          -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no, minimal-ui" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#00d4ff" />
+    <meta name="background-color" content="#0a0a0f" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SI-OS" />
+    <meta name="application-name" content="Stark Industries OS" />
+    <meta name="msapplication-TileColor" content="#0a0a0f" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    <meta name="full-screen" content="yes" />
+    <meta name="browsermode" content="application" />
+    <meta name="screen-orientation" content="portrait" />
+    
+    <!-- System Identity -->
+    <title>SI-OS | STARK INDUSTRIES OPERATING SYSTEM</title>
+    <meta name="description" content="Stark Industries Internal Operating System - J.A.R.V.I.S Interface" />
+    <meta name="author" content="Tony Stark - Stark Industries" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="keywords" content="Stark Industries, JARVIS, AI, Dashboard, Operating System" />
+    
+    <!-- Open Graph / Social -->
+    <meta property="og:title" content="Stark Industries OS" />
+    <meta property="og:description" content="J.A.R.V.I.S - Just A Rather Very Intelligent System" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- Favicon & App Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    <link rel="mask-icon" href="/favicon.svg" color="#00d4ff" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Theme & Display -->
+    <meta name="theme-color" content="#0a0a0f" />
+    <meta name="color-scheme" content="dark" />
+    <!-- PWA -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="/manifest.json" />
+    <!-- Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful');
+              // Check for updates
+              registration.update().catch(err => console.log('Update check failed:', err));
+            })
+            .catch(err => console.log('ServiceWorker registration failed: ', err));
+        });
+      }
+    </script>
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- Legacy iOS support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SI-OS" />
+    
+    <!-- Favicon - Arc Reactor Icon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    
+    <!-- Preconnect to Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Google Fonts - Stark Industries Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Debug Script (Temporary) -->
+    <script type="module" src="/debug-fullscreen.js"></script>
+    
+    <!-- Boot Sequence Styles (Before React Loads) -->
+    <style>
+      /* ═══════════════════════════════════════════════════════════════ */
+      /* BOOT SEQUENCE - Pre-React Loading Screen                        */
+      /* ═══════════════════════════════════════════════════════════════ */
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #0a0a0f;
+        font-family: 'Rajdhani', 'Orbitron', sans-serif;
+      }
+      
+      #root {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+      
+      /* Boot Loader Container */
+      .stark-boot-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: 
+          radial-gradient(ellipse at center, rgba(0, 212, 255, 0.03) 0%, transparent 70%),
+          linear-gradient(180deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%);
+        z-index: 9999;
+      }
+      
+      /* Grid Background */
+      .stark-boot-loader::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+          linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.5;
+      }
+      
+      /* Scan Line Effect */
+      .stark-boot-loader::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 212, 255, 0.015) 2px,
+          rgba(0, 212, 255, 0.015) 4px
+        );
+        pointer-events: none;
+      }
+      
+      /* Arc Reactor Core */
+      .arc-reactor {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin-bottom: 40px;
+      }
+      
+      .arc-reactor-ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        border: 2px solid rgba(0, 212, 255, 0.3);
+      }
+      
+      .arc-reactor-ring:nth-child(1) {
+        width: 100%;
+        height: 100%;
+        animation: ring-pulse 2s ease-in-out infinite, ring-spin 8s linear infinite;
+      }
+      
+      .arc-reactor-ring:nth-child(2) {
+        width: 75%;
+        height: 75%;
+        border-color: rgba(0, 212, 255, 0.5);
+        animation: ring-pulse 2s ease-in-out infinite 0.2s, ring-spin 6s linear infinite reverse;
+      }
+      
+      .arc-reactor-ring:nth-child(3) {
+        width: 50%;
+        height: 50%;
+        border-color: rgba(0, 212, 255, 0.7);
+        animation: ring-pulse 2s ease-in-out infinite 0.4s, ring-spin 4s linear infinite;
+      }
+      
+      .arc-reactor-core {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30%;
+        height: 30%;
+        background: radial-gradient(circle, #00d4ff 0%, #0066ff 50%, transparent 70%);
+        border-radius: 50%;
+        box-shadow: 
+          0 0 20px rgba(0, 212, 255, 0.8),
+          0 0 40px rgba(0, 212, 255, 0.6),
+          0 0 60px rgba(0, 212, 255, 0.4),
+          0 0 80px rgba(0, 212, 255, 0.2);
+        animation: core-pulse 1.5s ease-in-out infinite;
+      }
+      
+      /* Boot Text */
+      .boot-text {
+        position: relative;
+        text-align: center;
+        z-index: 10;
+      }
+      
+      .boot-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 24px;
+        font-weight: 700;
+        color: #00d4ff;
+        letter-spacing: 8px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        animation: text-flicker 3s ease-in-out infinite;
+      }
+      
+      .boot-subtitle {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        color: rgba(0, 212, 255, 0.6);
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin-bottom: 30px;
+      }
+      
+      /* Loading Bar */
+      .loading-container {
+        position: relative;
+        width: 280px;
+        height: 3px;
+        background: rgba(0, 212, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-bottom: 16px;
+      }
+      
+      .loading-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+        border-radius: 2px;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+        animation: loading 2s ease-in-out infinite;
+      }
+      
+      .loading-status {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: rgba(0, 212, 255, 0.5);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        animation: status-blink 1s step-end infinite;
+      }
+      
+      /* Keyframe Animations */
+      @keyframes ring-spin {
+        from { transform: translate(-50%, -50%) rotate(0deg); }
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+      
+      @keyframes ring-pulse {
+        0%, 100% { 
+          opacity: 0.3;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% { 
+          opacity: 0.8;
+          transform: translate(-50%, -50%) scale(1.05);
+        }
+      }
+      
+      @keyframes core-pulse {
+        0%, 100% { 
+          opacity: 0.9;
+          box-shadow: 
+            0 0 20px rgba(0, 212, 255, 0.8),
+            0 0 40px rgba(0, 212, 255, 0.6),
+            0 0 60px rgba(0, 212, 255, 0.4);
+        }
+        50% { 
+          opacity: 1;
+          box-shadow: 
+            0 0 30px rgba(0, 212, 255, 1),
+            0 0 60px rgba(0, 212, 255, 0.8),
+            0 0 90px rgba(0, 212, 255, 0.5);
+        }
+      }
+      
+      @keyframes text-flicker {
+        0%, 100% { opacity: 1; }
+        92% { opacity: 1; }
+        93% { opacity: 0.8; }
+        94% { opacity: 1; }
+        95% { opacity: 0.9; }
+        96% { opacity: 1; }
+      }
+      
+      @keyframes loading {
+        0% { 
+          left: -30%;
+          width: 30%;
+        }
+        50% {
+          width: 40%;
+        }
+        100% { 
+          left: 100%;
+          width: 30%;
+        }
+      }
+      
+      @keyframes status-blink {
+        0%, 50% { opacity: 0.5; }
+        51%, 100% { opacity: 1; }
+      }
+      
+      /* Corner Decorations */
+      .corner-decoration {
+        position: fixed;
+        width: 60px;
+        height: 60px;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        z-index: 5;
+      }
+      
+      .corner-decoration.top-left {
+        top: 20px;
+        left: 20px;
+        border-right: none;
+        border-bottom: none;
+      }
+      
+      .corner-decoration.top-right {
+        top: 20px;
+        right: 20px;
+        border-left: none;
+        border-bottom: none;
+      }
+      
+      .corner-decoration.bottom-left {
+        bottom: 20px;
+        left: 20px;
+        border-right: none;
+        border-top: none;
+      }
+      
+      .corner-decoration.bottom-right {
+        bottom: 20px;
+        right: 20px;
+        border-left: none;
+        border-top: none;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- BOOT SEQUENCE - Displayed while React loads                     -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="stark-boot-loader" id="boot-loader">
+      <!-- Corner Decorations -->
+      <div class="corner-decoration top-left"></div>
+      <div class="corner-decoration top-right"></div>
+      <div class="corner-decoration bottom-left"></div>
+      <div class="corner-decoration bottom-right"></div>
+      
+      <!-- Arc Reactor Loading Animation -->
+      <div class="arc-reactor">
+        <div class="arc-reactor-ring"></div>
+        <div class="arc-reactor-ring"></div>
+        <div class="arc-reactor-ring"></div>
+        <div class="arc-reactor-core"></div>
+      </div>
+      
+      <!-- Boot Text -->
+      <div class="boot-text">
+        <div class="boot-title">STARK INDUSTRIES</div>
+        <div class="boot-subtitle">Operating System Initializing</div>
+        
+        <!-- Loading Bar -->
+        <div class="loading-container">
+          <div class="loading-bar"></div>
+        </div>
+        
+        <div class="loading-status">Loading J.A.R.V.I.S Core...</div>
+      </div>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- REACT APPLICATION ROOT                                          -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="root"></div>
+    
+    <!-- Main Application Script -->
+    <script type="module" src="src/main.jsx"></script>
+    
+    <!-- Boot Loader Removal Script -->
+    <script>
+      // Remove boot loader when React app is ready
+      window.addEventListener('stark-os-ready', function() {
+        const bootLoader = document.getElementById('boot-loader');
+        if (bootLoader) {
+          bootLoader.style.transition = 'opacity 0.5s ease-out';
+          bootLoader.style.opacity = '0';
+          setTimeout(function() {
+            bootLoader.remove();
+          }, 500);
+        }
+      });
+      
+      // Fallback: Remove boot loader after 4 seconds if event not fired
+      setTimeout(function() {
+        const bootLoader = document.getElementById('boot-loader');
+        if (bootLoader) {
+          bootLoader.style.transition = 'opacity 0.5s ease-out';
+          bootLoader.style.opacity = '0';
+          setTimeout(function() {
+            bootLoader.remove();
+          }, 500);
+        }
+      }, 4000);
+    </script>
+  </body>
+</html>
