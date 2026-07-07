@@ -159,41 +159,46 @@ class VoiceService {
   findBestMaleVoice(voices) {
     if (!voices || voices.length === 0) return null
     
-    // Priority 1: Look for voices with "Male" in name
-    let voice = voices.find(v => 
+    // Priority 1: Google UK English Male (Chrome Desktop)
+    let voice = voices.find(v => v.name.includes('Google UK English Male'))
+    if (voice) return voice
+    
+    // Priority 2: Known Android / Mobile Male Voices for UK & US
+    // 'rjs' is Android Google TTS UK Male, 'iom' is US Male, 'cgb' is UK Male
+    const mobileMaleIdentifiers = ['en-gb-x-rjs', 'en-gb-x-cgb', 'en-us-x-iom']
+    voice = voices.find(v => 
+      mobileMaleIdentifiers.some(id => v.name.toLowerCase().includes(id)) ||
+      mobileMaleIdentifiers.some(id => v.voiceURI.toLowerCase().includes(id))
+    )
+    if (voice) return voice
+    
+    // Priority 3: Look for voices with "Male" in name
+    voice = voices.find(v => 
       v.name.toLowerCase().includes('male') && 
       !v.name.toLowerCase().includes('female')
     )
     if (voice) return voice
     
-    // Priority 2: Look for known male voice names
-    const maleNames = ['david', 'daniel', 'james', 'alex', 'fred', 'george', 'mark', 'paul', 'tom']
+    // Priority 4: Look for known male voice names (Apple/Windows)
+    const maleNames = ['david', 'daniel', 'james', 'alex', 'fred', 'george', 'mark', 'arthur']
     voice = voices.find(v => 
       maleNames.some(name => v.name.toLowerCase().includes(name))
     )
     if (voice) return voice
     
-    // Priority 3: Google UK English Male
-    voice = voices.find(v => v.name.includes('Google UK English Male'))
-    if (voice) return voice
-    
-    // Priority 4: Microsoft David
-    voice = voices.find(v => v.name.includes('David'))
-    if (voice) return voice
-    
-    // Priority 5: Any English voice (prefer UK for more J.A.R.V.I.S-like)
-    voice = voices.find(v => v.lang.includes('en-GB'))
+    // Priority 5: Any English UK voice (Jarvis is British)
+    voice = voices.find(v => v.lang.includes('en-GB') || v.lang.includes('en_GB'))
     if (voice) return voice
     
     // Priority 6: Any US English
-    voice = voices.find(v => v.lang.includes('en-US'))
+    voice = voices.find(v => v.lang.includes('en-US') || v.lang.includes('en_US'))
     if (voice) return voice
     
-    // Priority 7: Any English voice
+    // Fallback: First available English voice
     voice = voices.find(v => v.lang.startsWith('en'))
     if (voice) return voice
     
-    // Fallback: First available voice
+    // Ultimate Fallback
     return voices[0]
   }
   
@@ -291,8 +296,8 @@ class VoiceService {
       
       // Voice settings for J.A.R.V.I.S
       utterance.lang = 'en-GB'          // British English (J.A.R.V.I.S style)
-      utterance.pitch = 0.9             // Slightly lower pitch = more male
-      utterance.rate = 1.0              // Normal speed
+      utterance.pitch = 0.8             // Lower pitch = deeper, more male J.A.R.V.I.S voice
+      utterance.rate = 0.95             // Slightly slower for more dramatic AI feel
       utterance.volume = 1.0            // Full volume
       
       // Use selected male voice
