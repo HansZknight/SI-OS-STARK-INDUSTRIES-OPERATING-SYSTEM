@@ -8,7 +8,7 @@ export class UniversalAIAdapter {
       this.model = 'gpt-4o-mini';
     } else if (this.provider === 'groq') {
       this.baseUrl = 'https://api.groq.com/openai/v1/chat/completions';
-      this.model = 'llama3-70b-8192';
+      this.model = 'llama-3.1-70b-versatile'; // Model Llama 3.1 70B terbaru (Sangat pintar & cepat)
     } else if (this.provider === 'anthropic') {
       this.baseUrl = 'https://api.anthropic.com/v1/messages';
       this.model = 'claude-3-5-sonnet-20240620';

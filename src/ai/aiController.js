@@ -1407,9 +1407,9 @@ export const isConfigured = () => {
 export const setApiKey = (key) => {
   API_KEY = key
   if (key) {
-    localStorage.setItem('stark_gemini_api_key', key)
+    localStorage.setItem(`stark_${activeProvider}_api_key`, key)
   } else {
-    localStorage.removeItem('stark_gemini_api_key')
+    localStorage.removeItem(`stark_${activeProvider}_api_key`)
   }
   // Try to re-initialize
   return initializeGemini()
