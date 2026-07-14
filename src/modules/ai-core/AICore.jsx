@@ -445,6 +445,11 @@ const ChatInterface = ({ isGeminiConfigured, onVoiceStateChange }) => {
   const toggleVoiceInput = () => {
     console.log('[AI Core] Toggling voice input, current state:', isListening)
     
+    // CRITICAL: Unlock audio context SYNCHRONOUSLY on button click
+    if (voiceEnabled && voiceService.isSupported) {
+      voiceService.unlockAudio()
+    }
+
     if (isListening) {
       voiceService.stopListening()
       toast.info('Voice Input', 'Stopped listening')
