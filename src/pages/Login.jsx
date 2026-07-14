@@ -386,9 +386,9 @@ const Login = () => {
           })}
         </div>
         
-        {/* Corner Accents */}
-        <div className="absolute top-0 left-0 w-48 h-48 -ml-24 -mt-24 bg-arc-blue/5 rounded-full filter blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-64 h-64 -mr-32 -mb-32 bg-arc-cyan/5 rounded-full filter blur-3xl"></div>
+        {/* Corner Accents - Hidden on mobile for performance */}
+        <div className="hidden md:block absolute top-0 left-0 w-48 h-48 -ml-24 -mt-24 bg-arc-blue/5 rounded-full filter blur-3xl"></div>
+        <div className="hidden md:block absolute bottom-0 right-0 w-64 h-64 -mr-32 -mb-32 bg-arc-cyan/5 rounded-full filter blur-3xl"></div>
       </div>
       
       {/* Enhanced Main Login Card */}
@@ -401,8 +401,8 @@ const Login = () => {
         {/* Enhanced Arc Reactor Animation */}
         <div className="flex justify-center mb-6 md:mb-10 relative group">
           <div className="relative w-28 h-28 md:w-40 md:h-40">
-            {/* Outer Glow */}
-            <div className="absolute inset-0 rounded-full bg-arc-blue/10 blur-xl animate-pulse"></div>
+            {/* Outer Glow - Hidden on mobile for performance */}
+            <div className="hidden md:block absolute inset-0 rounded-full bg-arc-blue/10 blur-xl animate-pulse"></div>
             
             {/* Outer Ring with Animation */}
             <div className="absolute inset-0 rounded-full border-2 border-arc-blue/30 animate-spin-slow">
@@ -441,8 +441,8 @@ const Login = () => {
               ></motion.div>
             </motion.div>
             
-            {/* Connecting Lines */}
-            <div className="absolute inset-0">
+            {/* Connecting Lines - Hidden on mobile for performance */}
+            <div className="hidden md:block absolute inset-0">
               {[...Array(8)].map((_, i) => (
                 <div 
                   key={i}
