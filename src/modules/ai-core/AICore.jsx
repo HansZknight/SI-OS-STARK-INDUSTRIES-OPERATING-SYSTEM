@@ -370,8 +370,17 @@ const ChatInterface = ({ isGeminiConfigured, onVoiceStateChange }) => {
       if (result.isFinal) {
         setInput(result.transcript)
         setInterimTranscript('')
-        // Removed auto-send here to ensure we use manual "Tap to Send" or "Tap Mic to Stop & Send"
-        // This is required for mobile browsers to allow audio autoplay.
+        
+        // Auto-send on voice input for DESKTOP only.
+        // Mobile requires a manual tap gesture to successfully play audio responses.
+        const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (!isMobile) {
+          setTimeout(() => {
+            if (result.transcript.trim()) {
+              handleSend(result.transcript)
+            }
+          }, 1000)
+        }
       } else {
         setInterimTranscript(result.transcript)
       }
