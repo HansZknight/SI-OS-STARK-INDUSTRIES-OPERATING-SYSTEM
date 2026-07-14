@@ -4,8 +4,10 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { UniversalAIAdapter } from './aiAdapter.js'
 
-let API_KEY = localStorage.getItem('stark_gemini_api_key') || import.meta.env.STARK_GEMINI_API_KEY || ''
+let activeProvider = localStorage.getItem('stark_ai_provider') || 'gemini'
+let API_KEY = localStorage.getItem(`stark_${activeProvider}_api_key`) || import.meta.env.STARK_GEMINI_API_KEY || ''
 const AI_NAME = import.meta.env.STARK_AI_NAME || 'J.A.R.V.I.S'
 const MODEL_NAME = 'gemini-flash-latest'
 
@@ -93,6 +95,7 @@ Never break character. You ARE J.A.R.V.I.S.`
 let genAI = null
 let model = null
 let chat = null
+let universalAdapter = null
 let quotaExceeded = false
 
 // J.A.R.V.I.S State Management
@@ -1228,31 +1231,33 @@ const switchToNextModel = () => {
 }
 
 export const initializeGemini = () => {
-  // 📌 CEPAT DEBUG - Cek API key
-  console.log('API KEY:', import.meta.env.STARK_GEMINI_API_KEY)
+  activeProvider = localStorage.getItem('stark_ai_provider') || 'gemini'
+  API_KEY = localStorage.getItem(`stark_${activeProvider}_api_key`) || import.meta.env.STARK_GEMINI_API_KEY || ''
   
   if (!API_KEY || API_KEY.includes('your_') || API_KEY.length < 20) {
-    console.log('[J.A.R.V.I.S] No API key - Demo mode')
+    console.log(`[J.A.R.V.I.S] No API key for ${activeProvider} - Demo mode`)
     return false
   }
 
   try {
-    genAI = new GoogleGenerativeAI(API_KEY)
-    model = genAI.getGenerativeModel({
-      model: MODEL_PRIORITY[currentModelIndex],
-      generationConfig: {
-        temperature: 0.8,
-        topP: 0.95,
-        topK: 40,
-        maxOutputTokens: 1024
-      }
-    })
+    if (activeProvider === 'gemini') {
+      genAI = new GoogleGenerativeAI(API_KEY)
+      model = genAI.getGenerativeModel({
+        model: MODEL_PRIORITY[currentModelIndex],
+        generationConfig: {
+          temperature: 0.8,
+          topP: 0.95,
+          topK: 40,
+          maxOutputTokens: 1024
+        }
+      })
+      universalAdapter = null
+    } else {
+      model = true // Bypass model null checks
+      universalAdapter = new UniversalAIAdapter(API_KEY, activeProvider)
+    }
     
-    console.log(`[J.A.R.V.I.S] Neural core online: ${MODEL_PRIORITY[currentModelIndex]}`)
-    
-    // 🔥 MATIKAN AUTO CHECK - Tidak ada lagi auto-check
-    // setInterval(checkGeminiAlive, 15000) // DIHAPUS
-    
+    console.log(`[J.A.R.V.I.S] Neural core online: ${activeProvider}`)
     return true
   } catch (error) {
     console.error('[J.A.R.V.I.S] Init error:', error.message)
@@ -1264,12 +1269,16 @@ export const startNewChat = () => {
   if (!model || quotaExceeded) return null
 
   try {
-    chat = model.startChat({
-      history: [
-        { role: 'user', parts: [{ text: 'Be J.A.R.V.I.S' }] },
-        { role: 'model', parts: [{ text: `${JARVIS_PROMPT}\n\nOnline, Sir.` }] }
-      ]
-    })
+    if (activeProvider === 'gemini') {
+      chat = model.startChat({
+        history: [
+          { role: 'user', parts: [{ text: 'Be J.A.R.V.I.S' }] },
+          { role: 'model', parts: [{ text: `${JARVIS_PROMPT}\n\nOnline, Sir.` }] }
+        ]
+      })
+    } else {
+      chat = universalAdapter.startChat(`${JARVIS_PROMPT}\n\nMaintain this persona completely. Always refer to me as "Sir".`)
+    }
     return chat
   } catch (error) {
     console.error('[J.A.R.V.I.S] Chat error:', error.message)
@@ -1406,6 +1415,17 @@ export const setApiKey = (key) => {
   return initializeGemini()
 }
 
+export const setProvider = (provider) => {
+  activeProvider = provider
+  localStorage.setItem('stark_ai_provider', provider)
+  
+  // Try to load key for this provider
+  const savedKey = localStorage.getItem(`stark_${provider}_api_key`)
+  API_KEY = savedKey || ''
+  
+  return initializeGemini()
+}
+
 export const getAIStatus = () => ({
   configured: isConfigured(),
   initialized: !!model,
@@ -1421,6 +1441,7 @@ export default {
   resetChat,
   isConfigured,
   setApiKey,
+  setProvider,
   getAIStatus,
   pingGemini,
   announceGeminiRestored,

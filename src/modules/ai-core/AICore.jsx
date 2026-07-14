@@ -48,8 +48,9 @@ import {
   resetChat,
   isConfigured,
   setApiKey,
+  setProvider,
   getAIStatus 
-} from '../../ai/gemini'
+} from '../../ai/aiController'
 
 // Charts
 import { AIActivityChart, ResourceDistributionChart } from '../../components/charts'
@@ -118,6 +119,7 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
   }
 
   // API Key State
+  const [activeProviderState, setActiveProviderState] = useState(localStorage.getItem('stark_ai_provider') || 'gemini')
   const [apiKeyInput, setApiKeyInput] = useState('')
   const [isConfiguredLocal, setIsConfiguredLocal] = useState(isGeminiConfigured)
 
@@ -125,12 +127,19 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
     setIsConfiguredLocal(isGeminiConfigured)
   }, [isGeminiConfigured])
 
+  const handleProviderChange = (e) => {
+    const newProvider = e.target.value
+    setActiveProviderState(newProvider)
+    setProvider(newProvider)
+    setIsConfiguredLocal(isConfigured())
+  }
+
   const handleSaveApiKey = () => {
-    if (apiKeyInput.trim().length > 20) {
+    if (apiKeyInput.trim().length > 20 || activeProviderState !== 'gemini') {
       const success = setApiKey(apiKeyInput.trim())
-      if (success) {
+      if (success || isConfigured()) {
         setIsConfiguredLocal(true)
-        toast.success('System Online', 'Gemini AI Core is now connected.')
+        toast.success('System Online', `${activeProviderState.toUpperCase()} AI Core is now connected.`)
         setApiKeyInput('')
       } else {
         toast.error('Connection Failed', 'Invalid API Key provided.')
@@ -189,7 +198,7 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
             <>
               <Wifi size={16} className="text-green-400" />
               <div className="flex-1">
-                <p className="text-xs text-green-400 font-medium">Gemini AI Connected</p>
+                <p className="text-xs text-green-400 font-medium">{activeProviderState.toUpperCase()} AI Connected</p>
                 <p className="text-[10px] text-green-400/60">Voice + Neural core operational</p>
               </div>
               <CheckCircle size={14} className="text-green-400" />
@@ -207,20 +216,32 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
         </div>
         
         {!isConfiguredLocal && (
-          <div className="flex gap-2 mt-1">
-            <input 
-              type="password" 
-              placeholder="Paste Gemini API Key here..."
-              value={apiKeyInput}
-              onChange={(e) => setApiKeyInput(e.target.value)}
-              className="flex-1 bg-stark-dark/50 border border-yellow-400/30 text-white text-xs rounded p-1.5 outline-none focus:border-yellow-400"
-            />
-            <button 
-              onClick={handleSaveApiKey}
-              className="bg-yellow-400/20 hover:bg-yellow-400/40 text-yellow-400 text-xs px-3 rounded transition-colors"
+          <div className="flex flex-col gap-2 mt-1">
+            <select
+              value={activeProviderState}
+              onChange={handleProviderChange}
+              className="bg-stark-dark/50 border border-yellow-400/30 text-white text-xs rounded p-1.5 outline-none focus:border-yellow-400 w-full"
             >
-              Connect
-            </button>
+              <option value="gemini">Gemini</option>
+              <option value="openai">OpenAI (ChatGPT)</option>
+              <option value="groq">Groq (Llama-3)</option>
+              <option value="anthropic">Anthropic (Claude)</option>
+            </select>
+            <div className="flex gap-2">
+              <input 
+                type="password" 
+                placeholder={`Paste ${activeProviderState.toUpperCase()} API Key here...`}
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                className="flex-1 bg-stark-dark/50 border border-yellow-400/30 text-white text-xs rounded p-1.5 outline-none focus:border-yellow-400"
+              />
+              <button 
+                onClick={handleSaveApiKey}
+                className="bg-yellow-400/20 hover:bg-yellow-400/40 text-yellow-400 text-xs px-3 rounded transition-colors"
+              >
+                Connect
+              </button>
+            </div>
           </div>
         )}
       </div>
