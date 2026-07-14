@@ -8,13 +8,16 @@ app = Flask(__name__)
 CORS(app)
 
 COMMANDS = {
-    "OPEN_SPOTIFY": "https://open.spotify.com/intl-id/",
+    "OPEN_SPOTIFY": "start spotify:",
     "OPEN_WHATSAPP": "start whatsapp://",
     "OPEN_YOUTUBE": "https://youtube.com",
     "OPEN_VSCODE": "code .",
     "OPEN_TASKMGR": "taskmgr",
     "OPEN_TRADINGVIEW": "https://www.tradingview.com/markets/cryptocurrencies/",
-    "OPEN_SECURITY_CAMS": "https://www.earthcam.com/network/index.php"
+    "OPEN_SECURITY_CAMS": "https://www.earthcam.com/network/index.php",
+    "LOCK_PC": "rundll32.exe user32.dll,LockWorkStation",
+    "OPEN_DOWNLOADS": "explorer shell:Downloads",
+    "OPEN_DOCUMENTS": "explorer shell:Personal"
 }
 
 @app.route('/execute', methods=['POST'])
@@ -78,6 +81,32 @@ def execute():
         print(f"[STARK BRIDGE] Searching Google for: {query}")
         threading.Thread(target=lambda: webbrowser.open(target)).start()
         return jsonify({"status": "success", "executed": action, "query": query})
+        
+    elif action == "CLOSE_WINDOW":
+        import pyautogui
+        print(f"[STARK BRIDGE] Closing current window")
+        threading.Thread(target=lambda: pyautogui.hotkey('alt', 'f4')).start()
+        return jsonify({"status": "success", "executed": action})
+        
+    elif action == "TAKE_SCREENSHOT":
+        import pyautogui
+        import time
+        pictures_dir = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Pictures')
+        if not os.path.exists(pictures_dir):
+            os.makedirs(pictures_dir)
+            
+        timestamp = int(time.time())
+        filepath = os.path.join(pictures_dir, f"JARVIS_Screenshot_{timestamp}.png")
+        
+        print(f"[STARK BRIDGE] Taking screenshot: {filepath}")
+        def capture():
+            time.sleep(1)
+            pyautogui.screenshot(filepath)
+            print(f"[STARK BRIDGE] Screenshot saved to {filepath}")
+            
+        threading.Thread(target=capture).start()
+        return jsonify({"status": "success", "executed": action, "filepath": filepath})
+        
     return jsonify({"status": "error", "message": "Unknown command"}), 400
 
 @app.route('/ping', methods=['GET'])
