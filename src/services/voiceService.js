@@ -340,17 +340,7 @@ class VoiceService {
         }
       }
       
-      // Dynamic Pitch adjustment:
-      // If we are forced to use a generic/female fallback voice (common on Android), 
-      // we lower the pitch drastically to make it sound like a deep male cyborg.
-      let isKnownMale = false;
-      if (this.selectedVoice && this.selectedVoice.name) {
-        const name = this.selectedVoice.name.toLowerCase();
-        const maleNames = ['male', 'david', 'daniel', 'james', 'alex', 'fred', 'rjs', 'cgb', 'iom'];
-        isKnownMale = maleNames.some(m => name.includes(m));
-      }
-      
-      utterance.pitch = isKnownMale ? 0.8 : 0.2; // 0.2 makes female voices sound deep/masculine
+      utterance.pitch = 0.8; // Reverted back to original deep JARVIS pitch
       
       utterance.onstart = () => {
         this.isSpeaking = true
