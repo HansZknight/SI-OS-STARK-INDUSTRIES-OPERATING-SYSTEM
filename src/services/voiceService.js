@@ -32,6 +32,8 @@ class VoiceService {
       'Fred',
       'Male',
       'en-GB',
+      'de-DE',
+      'de_DE',
       'en-US'
     ]
     
