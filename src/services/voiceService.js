@@ -313,6 +313,22 @@ class VoiceService {
     this.isListening = false
   }
   
+  getAvailableVoices() {
+    return this.synthesis ? this.synthesis.getVoices() : []
+  }
+
+  setVoice(name) {
+    if (!this.synthesis) return false
+    const voices = this.synthesis.getVoices()
+    const voice = voices.find(v => v.name === name)
+    if (voice) {
+      this.selectedVoice = voice
+      console.log('[Voice] Manually selected voice:', voice.name)
+      return true
+    }
+    return false
+  }
+
   // Speak text with male voice
   speak(text, options = {}) {
     if (!this.synthesis) {

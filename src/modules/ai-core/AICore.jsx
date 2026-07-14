@@ -87,6 +87,35 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
 
   const status = getStatusInfo()
 
+  // Voice Selection State
+  const [availableVoices, setAvailableVoices] = useState([])
+  const [selectedVoiceName, setSelectedVoiceName] = useState('')
+
+  useEffect(() => {
+    const loadVoices = () => {
+      if (voiceService.isSupported) {
+        const voices = voiceService.getAvailableVoices()
+        setAvailableVoices(voices)
+        if (voiceService.selectedVoice) {
+          setSelectedVoiceName(voiceService.selectedVoice.name)
+        }
+      }
+    }
+    
+    setTimeout(loadVoices, 1000)
+    if (window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = loadVoices
+    }
+  }, [])
+
+  const handleVoiceChange = (e) => {
+    const name = e.target.value
+    if (voiceService.setVoice(name)) {
+      setSelectedVoiceName(name)
+      toast.success('Voice Setup', `JARVIS voice changed to ${name}`)
+    }
+  }
+
   return (
     <div className="hud-panel p-5">
       {/* Header */}
@@ -191,6 +220,22 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
           <p className="text-[10px] text-white/40">Uptime</p>
         </motion.div>
       </div>
+
+      {/* Voice Selection Dropdown */}
+      {availableVoices.length > 0 && (
+        <div className="mt-4 p-3 rounded-lg bg-stark-light/30 border border-arc-500/10">
+          <label className="block text-[10px] text-white/50 mb-1">JARVIS VOICE PROFILE</label>
+          <select 
+            value={selectedVoiceName}
+            onChange={handleVoiceChange}
+            className="w-full bg-stark-dark/50 border border-arc-500/30 text-white text-xs rounded p-1.5 outline-none focus:border-arc-500"
+          >
+            {availableVoices.map((v, i) => (
+              <option key={i} value={v.name}>{v.name} ({v.lang})</option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   )
 }
