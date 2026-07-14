@@ -216,9 +216,26 @@ class VoiceService {
       console.log(`  ${i}: ${v.name} (${v.lang}) ${v.localService ? '[Local]' : '[Remote]'}`)
     })
   }
+
+  // Unlock audio context for mobile browsers (must be called from a user gesture)
+  unlockAudio() {
+    if (this.synthesis && !this._audioUnlocked) {
+      try {
+        const utterance = new SpeechSynthesisUtterance('');
+        utterance.volume = 0;
+        this.synthesis.speak(utterance);
+        this._audioUnlocked = true;
+        console.log('[Voice] Audio context unlocked for mobile');
+      } catch (e) {
+        console.warn('[Voice] Failed to unlock audio context', e);
+      }
+    }
+  }
   
   // Start listening
   startListening() {
+    this.unlockAudio(); // Prime the audio engine during the click event
+
     if (!this.isSupported || !this.recognition) {
       console.warn('[Voice] Speech recognition not available')
       if (this.onError) {

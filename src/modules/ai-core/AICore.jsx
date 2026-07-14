@@ -384,6 +384,11 @@ const ChatInterface = ({ isGeminiConfigured, onVoiceStateChange }) => {
 
     setAIStatus('processing')
     setIsTyping(true)
+    
+    // Unlock audio context on mobile before the async operation
+    if (voiceEnabled && voiceService.isSupported) {
+      voiceService.unlockAudio()
+    }
 
     try {
       const response = await sendGeminiMessage(userMessage)
