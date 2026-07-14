@@ -17,7 +17,11 @@ COMMANDS = {
     "OPEN_SECURITY_CAMS": "https://www.earthcam.com/network/index.php",
     "LOCK_PC": "rundll32.exe user32.dll,LockWorkStation",
     "OPEN_DOWNLOADS": "explorer shell:Downloads",
-    "OPEN_DOCUMENTS": "explorer shell:Personal"
+    "OPEN_DOCUMENTS": "explorer shell:Personal",
+    "OPEN_WEATHER_RADAR": "https://earth.nullschool.net/",
+    "OPEN_CALCULATOR": "calc",
+    "OPEN_NOTEPAD": "notepad",
+    "OPEN_SETTINGS": "start ms-settings:"
 }
 
 @app.route('/execute', methods=['POST'])
@@ -152,6 +156,59 @@ def execute():
             webbrowser.open("https://www.youtube.com/watch?v=4yOjnEvzYjM")
         threading.Thread(target=timer_thread).start()
         return jsonify({"status": "success", "executed": action, "minutes": minutes})
+        
+    elif action == "TYPE_TEXT":
+        import pyautogui
+        text_to_type = data.get('query', '')
+        print(f"[STARK BRIDGE] Typing text: {text_to_type}")
+        threading.Thread(target=lambda: pyautogui.write(text_to_type, interval=0.01)).start()
+        return jsonify({"status": "success", "executed": action, "text": text_to_type})
+        
+    elif action == "READ_TEXT":
+        import pyautogui
+        import pyperclip
+        import pyttsx3
+        import time
+        
+        print(f"[STARK BRIDGE] Reading highlighted text...")
+        def read_highlighted():
+            # Copy text
+            pyautogui.hotkey('ctrl', 'c')
+            time.sleep(0.5)
+            text = pyperclip.paste()
+            if text:
+                print(f"[STARK BRIDGE] Text to read: {text[:50]}...")
+                engine = pyttsx3.init()
+                engine.say(text)
+                engine.runAndWait()
+            else:
+                print("[STARK BRIDGE] No text found in clipboard.")
+        threading.Thread(target=read_highlighted).start()
+        return jsonify({"status": "success", "executed": action})
+        
+    elif action == "TAKE_SELFIE":
+        import cv2
+        import time
+        pictures_dir = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Pictures')
+        if not os.path.exists(pictures_dir):
+            os.makedirs(pictures_dir)
+            
+        timestamp = int(time.time())
+        filepath = os.path.join(pictures_dir, f"JARVIS_Selfie_{timestamp}.jpg")
+        
+        print(f"[STARK BRIDGE] Taking selfie: {filepath}")
+        def capture_selfie():
+            cap = cv2.VideoCapture(0)
+            # Beri waktu kamera untuk fokus
+            time.sleep(1)
+            ret, frame = cap.read()
+            if ret:
+                cv2.imwrite(filepath, frame)
+                print(f"[STARK BRIDGE] Selfie saved to {filepath}")
+            cap.release()
+            
+        threading.Thread(target=capture_selfie).start()
+        return jsonify({"status": "success", "executed": action, "filepath": filepath})
         
     return jsonify({"status": "error", "message": "Unknown command"}), 400
 
