@@ -154,11 +154,16 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
         )}
       </div>
 
-      {/* 3D Neural Core Visualizer */}
+      {/* Visualizer - 3D for Desktop, 2D for Mobile to optimize performance */}
       <div className="my-4">
-        <JarvisCore3D 
-          state={isListening ? 'listening' : (aiStatus === 'processing' ? 'processing' : 'idle')} 
-        />
+        <div className="hidden md:block">
+          <JarvisCore3D 
+            state={isListening ? 'listening' : (aiStatus === 'processing' ? 'processing' : 'idle')} 
+          />
+        </div>
+        <div className="md:hidden flex justify-center py-4">
+          <AdvancedVoiceVisualizer isListening={isListening} />
+        </div>
       </div>
 
       {/* Metrics */}

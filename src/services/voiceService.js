@@ -225,13 +225,22 @@ class VoiceService {
 
   // Unlock audio context for mobile browsers (must be called from a user gesture)
   unlockAudio() {
-    if (this.synthesis && !this._audioUnlocked) {
+    if (this.synthesis) {
       try {
-        const utterance = new SpeechSynthesisUtterance('');
+        // iOS/Android trick: Speak a long silent text and pause it immediately.
+        // This keeps the speech synthesis engine "active" and allows us to cancel
+        // and speak asynchronously later without losing the user-gesture lock.
+        const utterance = new SpeechSynthesisUtterance('A'.repeat(500));
         utterance.volume = 0;
         this.synthesis.speak(utterance);
+        
+        // Pause it immediately to keep it in the queue
+        setTimeout(() => {
+          this.synthesis.pause();
+        }, 10);
+        
         this._audioUnlocked = true;
-        console.log('[Voice] Audio context unlocked for mobile');
+        console.log('[Voice] Audio context unlocked and paused for mobile');
       } catch (e) {
         console.warn('[Voice] Failed to unlock audio context', e);
       }
