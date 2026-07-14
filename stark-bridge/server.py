@@ -26,13 +26,28 @@ def execute():
         target = COMMANDS[action]
         print(f"[STARK BRIDGE] Executing command: {action} -> {target}")
         
-        # Eksekusi di thread terpisah agar API merespons dengan cepat tanpa terblokir
         if target.startswith("http"):
             threading.Thread(target=lambda: webbrowser.open(target)).start()
         else:
             threading.Thread(target=lambda: os.system(target)).start()
             
         return jsonify({"status": "success", "executed": action})
+        
+    elif action == "SEARCH_SPOTIFY":
+        import urllib.parse
+        query = urllib.parse.quote(data.get('query', ''))
+        target = f"https://open.spotify.com/search/{query}"
+        print(f"[STARK BRIDGE] Searching Spotify for: {query}")
+        threading.Thread(target=lambda: webbrowser.open(target)).start()
+        return jsonify({"status": "success", "executed": action, "query": query})
+        
+    elif action == "SEARCH_YOUTUBE":
+        import urllib.parse
+        query = urllib.parse.quote(data.get('query', ''))
+        target = f"https://www.youtube.com/results?search_query={query}"
+        print(f"[STARK BRIDGE] Searching YouTube for: {query}")
+        threading.Thread(target=lambda: webbrowser.open(target)).start()
+        return jsonify({"status": "success", "executed": action, "query": query})
     
     print(f"[STARK BRIDGE] Unknown command: {action}")
     return jsonify({"status": "error", "message": "Unknown command"}), 400

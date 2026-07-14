@@ -1270,10 +1270,18 @@ export const startNewChat = () => {
 
   const bridgeInstruction = `
 If the user asks you to open an application or website, reply naturally and append EXACTLY ONE of the following secret codes at the very end of your response:
-- For Spotify: [CMD:OPEN_SPOTIFY]
+- For Spotify (just open): [CMD:OPEN_SPOTIFY]
 - For WhatsApp: [CMD:OPEN_WHATSAPP]
-- For YouTube: [CMD:OPEN_YOUTUBE]
+- For YouTube (just open): [CMD:OPEN_YOUTUBE]
 - For VS Code: [CMD:OPEN_VSCODE]
+
+If the user asks you to PLAY or SEARCH a specific song, artist, or video, use these codes instead:
+- To play/search on Spotify: [CMD:SEARCH_SPOTIFY|artist or song name]
+- To play/search on YouTube: [CMD:SEARCH_YOUTUBE|video name]
+
+Examples:
+User: "Play Hans Zimmer on Spotify" -> AI: "Playing Hans Zimmer for you, Sir. [CMD:SEARCH_SPOTIFY|Hans Zimmer]"
+User: "Search for Iron Man trailer on YouTube" -> AI: "Right away. [CMD:SEARCH_YOUTUBE|Iron Man trailer]"
 Never mention these codes to the user, just append them.
 `
 
@@ -1340,14 +1348,18 @@ export const sendMessage = async (message) => {
     // Check for local bridge commands
     const cmdMatch = text.match(/\[CMD:([^\]]+)\]/i);
     if (cmdMatch) {
-      const command = cmdMatch[1];
+      const fullCommand = cmdMatch[1];
       text = text.replace(/\[CMD:([^\]]+)\]/i, '').trim();
+      
+      const parts = fullCommand.split('|');
+      const command = parts[0];
+      const query = parts.length > 1 ? parts[1] : '';
       
       // Fire-and-forget to local bridge
       fetch('http://localhost:5000/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: command })
+        body: JSON.stringify({ action: command, query: query })
       }).catch(e => console.log('[Stark Bridge] Not reachable.'));
     }
     
@@ -1392,12 +1404,17 @@ export const sendMessage = async (message) => {
           
           const cmdMatch = retryText.match(/\[CMD:([^\]]+)\]/i);
           if (cmdMatch) {
-            const command = cmdMatch[1];
+            const fullCommand = cmdMatch[1];
             retryText = retryText.replace(/\[CMD:([^\]]+)\]/i, '').trim();
+            
+            const parts = fullCommand.split('|');
+            const command = parts[0];
+            const query = parts.length > 1 ? parts[1] : '';
+
             fetch('http://localhost:5000/execute', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ action: command })
+              body: JSON.stringify({ action: command, query: query })
             }).catch(e => console.log('[Stark Bridge] Not reachable.'));
           }
 
