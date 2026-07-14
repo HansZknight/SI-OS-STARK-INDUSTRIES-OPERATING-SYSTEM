@@ -106,6 +106,52 @@ def execute():
             
         threading.Thread(target=capture).start()
         return jsonify({"status": "success", "executed": action, "filepath": filepath})
+    elif action == "SHOW_DESKTOP":
+        import pyautogui
+        print(f"[STARK BRIDGE] Showing desktop")
+        threading.Thread(target=lambda: pyautogui.hotkey('win', 'd')).start()
+        return jsonify({"status": "success", "executed": action})
+        
+    elif action in ["VOLUME_UP", "VOLUME_DOWN", "VOLUME_MUTE"]:
+        import pyautogui
+        print(f"[STARK BRIDGE] Adjusting volume: {action}")
+        if action == "VOLUME_UP":
+            threading.Thread(target=lambda: pyautogui.press('volumeup', presses=10)).start()
+        elif action == "VOLUME_DOWN":
+            threading.Thread(target=lambda: pyautogui.press('volumedown', presses=10)).start()
+        else:
+            threading.Thread(target=lambda: pyautogui.press('volumemute')).start()
+        return jsonify({"status": "success", "executed": action})
+        
+    elif action in ["SCROLL_DOWN", "SCROLL_UP"]:
+        import pyautogui
+        print(f"[STARK BRIDGE] Scrolling: {action}")
+        if action == "SCROLL_DOWN":
+            threading.Thread(target=lambda: pyautogui.scroll(-500)).start()
+        else:
+            threading.Thread(target=lambda: pyautogui.scroll(500)).start()
+        return jsonify({"status": "success", "executed": action})
+        
+    elif action == "EMPTY_TRASH":
+        print(f"[STARK BRIDGE] Emptying Recycle Bin")
+        threading.Thread(target=lambda: os.system("powershell.exe -NoProfile -Command Clear-RecycleBin -Confirm:$false")).start()
+        return jsonify({"status": "success", "executed": action})
+        
+    elif action == "SET_TIMER":
+        import time
+        minutes_str = data.get('query', '5')
+        try:
+            minutes = int(minutes_str)
+        except ValueError:
+            minutes = 5
+        print(f"[STARK BRIDGE] Setting timer for {minutes} minutes")
+        def timer_thread():
+            time.sleep(minutes * 60)
+            print(f"[STARK BRIDGE] Timer finished! Ringing alarm.")
+            # Search YouTube for generic alarm sound
+            webbrowser.open("https://www.youtube.com/watch?v=4yOjnEvzYjM")
+        threading.Thread(target=timer_thread).start()
+        return jsonify({"status": "success", "executed": action, "minutes": minutes})
         
     return jsonify({"status": "error", "message": "Unknown command"}), 400
 
