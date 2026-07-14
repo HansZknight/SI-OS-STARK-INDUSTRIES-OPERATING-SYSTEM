@@ -122,6 +122,7 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
   const [activeProviderState, setActiveProviderState] = useState(localStorage.getItem('stark_ai_provider') || 'gemini')
   const [apiKeyInput, setApiKeyInput] = useState('')
   const [isConfiguredLocal, setIsConfiguredLocal] = useState(isGeminiConfigured)
+  const [showSettings, setShowSettings] = useState(!isGeminiConfigured)
 
   useEffect(() => {
     setIsConfiguredLocal(isGeminiConfigured)
@@ -132,6 +133,7 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
     setActiveProviderState(newProvider)
     setProvider(newProvider)
     setIsConfiguredLocal(isConfigured())
+    setShowSettings(true)
   }
 
   const handleSaveApiKey = () => {
@@ -141,6 +143,7 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
         setIsConfiguredLocal(true)
         toast.success('System Online', `${activeProviderState.toUpperCase()} AI Core is now connected.`)
         setApiKeyInput('')
+        setShowSettings(false)
       } else {
         toast.error('Connection Failed', 'Invalid API Key provided.')
       }
@@ -188,7 +191,7 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
       </div>
 
       {/* API Status */}
-      <div className={`mb-4 p-3 rounded-lg flex flex-col gap-3 ${
+      <div className={`mb-4 p-3 rounded-lg flex flex-col gap-3 transition-colors ${
         isConfiguredLocal 
           ? 'bg-green-400/10 border border-green-400/20' 
           : 'bg-yellow-400/10 border border-yellow-400/20'
@@ -201,7 +204,13 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
                 <p className="text-xs text-green-400 font-medium">{activeProviderState.toUpperCase()} AI Connected</p>
                 <p className="text-[10px] text-green-400/60">Voice + Neural core operational</p>
               </div>
-              <CheckCircle size={14} className="text-green-400" />
+              <button 
+                onClick={() => setShowSettings(!showSettings)} 
+                className="text-green-400/70 hover:text-green-400 p-1 transition-colors"
+                title="Configure AI Provider"
+              >
+                 <Settings size={14} />
+              </button>
             </>
           ) : (
             <>
@@ -210,19 +219,31 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
                 <p className="text-xs text-yellow-400 font-medium">Demo Mode Active</p>
                 <p className="text-[10px] text-yellow-400/60">AI features are currently simulated</p>
               </div>
-              <AlertTriangle size={14} className="text-yellow-400" />
+              <button 
+                onClick={() => setShowSettings(!showSettings)} 
+                className="text-yellow-400/70 hover:text-yellow-400 p-1 transition-colors"
+                title="Configure AI Provider"
+              >
+                 <Settings size={14} />
+              </button>
             </>
           )}
         </div>
         
-        {!isConfiguredLocal && (
-          <div className="flex flex-col gap-2 mt-1">
+        {(!isConfiguredLocal || showSettings) && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="flex flex-col gap-2 mt-1 pt-2 border-t border-white/10"
+          >
+            <label className="text-[10px] text-white/50 uppercase tracking-wider">AI Provider Configuration</label>
             <select
               value={activeProviderState}
               onChange={handleProviderChange}
-              className="bg-stark-dark/50 border border-yellow-400/30 text-white text-xs rounded p-1.5 outline-none focus:border-yellow-400 w-full"
+              className={`bg-stark-dark/50 border text-white text-xs rounded p-1.5 outline-none w-full transition-colors
+                ${isConfiguredLocal ? 'border-green-400/30 focus:border-green-400' : 'border-yellow-400/30 focus:border-yellow-400'}`}
             >
-              <option value="gemini">Gemini</option>
+              <option value="gemini">Google Gemini (Default)</option>
               <option value="openai">OpenAI (ChatGPT)</option>
               <option value="groq">Groq (Llama-3)</option>
               <option value="anthropic">Anthropic (Claude)</option>
@@ -233,16 +254,18 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
                 placeholder={`Paste ${activeProviderState.toUpperCase()} API Key here...`}
                 value={apiKeyInput}
                 onChange={(e) => setApiKeyInput(e.target.value)}
-                className="flex-1 bg-stark-dark/50 border border-yellow-400/30 text-white text-xs rounded p-1.5 outline-none focus:border-yellow-400"
+                className={`flex-1 bg-stark-dark/50 border text-white text-xs rounded p-1.5 outline-none transition-colors
+                  ${isConfiguredLocal ? 'border-green-400/30 focus:border-green-400' : 'border-yellow-400/30 focus:border-yellow-400'}`}
               />
               <button 
                 onClick={handleSaveApiKey}
-                className="bg-yellow-400/20 hover:bg-yellow-400/40 text-yellow-400 text-xs px-3 rounded transition-colors"
+                className={`text-xs px-3 rounded transition-colors
+                  ${isConfiguredLocal ? 'bg-green-400/20 hover:bg-green-400/40 text-green-400' : 'bg-yellow-400/20 hover:bg-yellow-400/40 text-yellow-400'}`}
               >
-                Connect
+                Save
               </button>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
 
