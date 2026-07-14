@@ -1380,7 +1380,7 @@ export const sendMessage = async (message) => {
 
     return {
       success: false,
-      content: getDemoResponse(message).content,
+      content: `[API CONNECTION ERROR] ${error.message} (Provider: ${activeProvider})`,
       error: error.message,
       isDemo: true
     }
@@ -1411,6 +1411,12 @@ export const setApiKey = (key) => {
   } else {
     localStorage.removeItem(`stark_${activeProvider}_api_key`)
   }
+  
+  // Reset all blockers when new key is provided
+  hardQuotaBlocked = false
+  quotaExceeded = false
+  geminiReady = false
+  
   // Try to re-initialize
   return initializeGemini()
 }
@@ -1422,6 +1428,11 @@ export const setProvider = (provider) => {
   // Try to load key for this provider
   const savedKey = localStorage.getItem(`stark_${provider}_api_key`)
   API_KEY = savedKey || ''
+  
+  // Reset blockers
+  hardQuotaBlocked = false
+  quotaExceeded = false
+  geminiReady = false
   
   return initializeGemini()
 }

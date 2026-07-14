@@ -457,16 +457,12 @@ const ChatInterface = ({ isGeminiConfigured, onVoiceStateChange }) => {
         setInput(result.transcript)
         setInterimTranscript('')
         
-        // Auto-send on voice input for DESKTOP only.
-        // Mobile requires a manual tap gesture to successfully play audio responses.
-        const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        if (!isMobile) {
-          setTimeout(() => {
-            if (result.transcript.trim()) {
-              handleSend(result.transcript)
-            }
-          }, 1000)
-        }
+        // Auto-send on voice input globally
+        setTimeout(() => {
+          if (result.transcript.trim()) {
+            handleSend(result.transcript)
+          }
+        }, 1000)
       } else {
         setInterimTranscript(result.transcript)
       }
