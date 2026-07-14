@@ -247,7 +247,7 @@ function ToastItem({ toast, onDismiss }) {
       }}
       className={`
         relative overflow-hidden
-        w-96 p-4
+        w-[calc(100vw-2rem)] sm:w-96 p-3 sm:p-4
         border rounded-lg
         backdrop-blur-xl
         shadow-2xl
@@ -355,8 +355,8 @@ export function ToastContainer({ toasts, onDismiss }) {
   return (
     <>
       {/* Toast Stack - Top Right */}
-      <div className="fixed top-4 right-4 z-[9999] pointer-events-none">
-        <div className="flex flex-col gap-3 pointer-events-auto">
+      <div className="fixed top-4 right-4 left-4 sm:left-auto z-[9999] pointer-events-none">
+        <div className="flex flex-col gap-2 sm:gap-3 items-end pointer-events-auto">
           <AnimatePresence mode="popLayout">
             {toasts.map((toast) => (
               <ToastItem 
