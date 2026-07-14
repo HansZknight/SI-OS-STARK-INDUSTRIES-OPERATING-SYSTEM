@@ -1292,6 +1292,10 @@ If the user asks you to open an application or website, reply naturally and appe
 - To Open Calculator: [CMD:OPEN_CALCULATOR]
 - To Open Notepad: [CMD:OPEN_NOTEPAD]
 - To Open Settings: [CMD:OPEN_SETTINGS]
+- To Check Battery Status: [CMD:CHECK_BATTERY]
+- To Translate highlighted text: [CMD:TRANSLATE_TEXT]
+- To Search highlighted text on Google: [CMD:SEARCH_HIGHLIGHTED]
+- To Find/Wiggle the mouse cursor: [CMD:FIND_CURSOR]
 
 If the user asks you to PLAY or SEARCH a specific song, artist, video, or info, use these codes instead:
 - To play/search on Spotify: [CMD:SEARCH_SPOTIFY|artist or song name]
@@ -1299,10 +1303,16 @@ If the user asks you to PLAY or SEARCH a specific song, artist, video, or info, 
 - To search Google for information: [CMD:SEARCH_GOOGLE|search query]
 - To set a Timer/Alarm: [CMD:SET_TIMER|minutes] (e.g., [CMD:SET_TIMER|5] for 5 minutes)
 - To type specific text: [CMD:TYPE_TEXT|exact text to type] (e.g. [CMD:TYPE_TEXT|Hello world])
+- To set screen brightness: [CMD:SET_BRIGHTNESS|level] (e.g. [CMD:SET_BRIGHTNESS|100] for max)
 
 You are allowed to output MULTIPLE secret codes in a single response if the user asks you to do multiple things at once (Multitasking).
 
 Examples:
+User: "Check power reserves" -> AI: "Checking battery status. [CMD:CHECK_BATTERY]"
+User: "Dim the screen to 50 percent" -> AI: "Adjusting brightness. [CMD:SET_BRIGHTNESS|50]"
+User: "Translate this text" -> AI: "Translating now. [CMD:TRANSLATE_TEXT]"
+User: "Search this on Google" -> AI: "Searching it now. [CMD:SEARCH_HIGHLIGHTED]"
+User: "Where is my cursor?" -> AI: "Wiggling the mouse. [CMD:FIND_CURSOR]"
 User: "Close this window" -> AI: "Closing window. [CMD:CLOSE_WINDOW]"
 User: "Type: I am Iron Man" -> AI: "Typing it now, Sir. [CMD:TYPE_TEXT|I am Iron Man]"
 User: "Read this for me" -> AI: "Reading the text, Sir. [CMD:READ_TEXT]"

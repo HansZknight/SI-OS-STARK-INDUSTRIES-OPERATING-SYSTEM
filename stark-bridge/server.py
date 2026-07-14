@@ -210,6 +210,86 @@ def execute():
         threading.Thread(target=capture_selfie).start()
         return jsonify({"status": "success", "executed": action, "filepath": filepath})
         
+    elif action == "CHECK_BATTERY":
+        import psutil
+        import pyttsx3
+        print(f"[STARK BRIDGE] Checking battery status...")
+        def report_battery():
+            battery = psutil.sensors_battery()
+            engine = pyttsx3.init()
+            if battery:
+                plugged = "and currently charging" if battery.power_plugged else "and not charging"
+                engine.say(f"Sir, power is at {battery.percent} percent {plugged}.")
+            else:
+                engine.say("Sir, I am unable to detect a battery. You might be on a desktop computer.")
+            engine.runAndWait()
+        threading.Thread(target=report_battery).start()
+        return jsonify({"status": "success", "executed": action})
+        
+    elif action == "SET_BRIGHTNESS":
+        import screen_brightness_control as sbc
+        level_str = data.get('query', '100')
+        try:
+            level = int(level_str)
+        except ValueError:
+            level = 100
+        print(f"[STARK BRIDGE] Setting brightness to {level}%")
+        threading.Thread(target=lambda: sbc.set_brightness(level)).start()
+        return jsonify({"status": "success", "executed": action, "level": level})
+        
+    elif action == "TRANSLATE_TEXT":
+        import pyautogui
+        import pyperclip
+        import time
+        import urllib.parse
+        print(f"[STARK BRIDGE] Translating highlighted text...")
+        def translate():
+            pyautogui.hotkey('ctrl', 'c')
+            time.sleep(0.5)
+            text = pyperclip.paste()
+            if text:
+                query = urllib.parse.quote(text)
+                target = f"https://translate.google.com/?sl=auto&tl=id&text={query}&op=translate"
+                webbrowser.open(target)
+            else:
+                print("[STARK BRIDGE] No text found in clipboard.")
+        threading.Thread(target=translate).start()
+        return jsonify({"status": "success", "executed": action})
+        
+    elif action == "SEARCH_HIGHLIGHTED":
+        import pyautogui
+        import pyperclip
+        import time
+        import urllib.parse
+        print(f"[STARK BRIDGE] Searching highlighted text...")
+        def search_high():
+            pyautogui.hotkey('ctrl', 'c')
+            time.sleep(0.5)
+            text = pyperclip.paste()
+            if text:
+                query = urllib.parse.quote(text)
+                target = f"https://www.google.com/search?q={query}"
+                webbrowser.open(target)
+            else:
+                print("[STARK BRIDGE] No text found in clipboard.")
+        threading.Thread(target=search_high).start()
+        return jsonify({"status": "success", "executed": action})
+        
+    elif action == "FIND_CURSOR":
+        import pyautogui
+        import math
+        import time
+        print(f"[STARK BRIDGE] Finding cursor...")
+        def wiggle_mouse():
+            x, y = pyautogui.position()
+            radius = 100
+            for i in range(10):
+                angle = i * (2 * math.pi / 10)
+                pyautogui.moveTo(x + radius * math.cos(angle), y + radius * math.sin(angle), 0.05)
+            pyautogui.moveTo(x, y, 0.1)
+        threading.Thread(target=wiggle_mouse).start()
+        return jsonify({"status": "success", "executed": action})
+        
     return jsonify({"status": "error", "message": "Unknown command"}), 400
 
 @app.route('/ping', methods=['GET'])
