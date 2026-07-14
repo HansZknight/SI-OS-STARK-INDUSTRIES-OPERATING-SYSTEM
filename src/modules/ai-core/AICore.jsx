@@ -47,6 +47,7 @@ import {
   startNewChat,
   resetChat,
   isConfigured,
+  setApiKey,
   getAIStatus 
 } from '../../ai/gemini'
 
@@ -116,6 +117,27 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
     }
   }
 
+  // API Key State
+  const [apiKeyInput, setApiKeyInput] = useState('')
+  const [isConfiguredLocal, setIsConfiguredLocal] = useState(isGeminiConfigured)
+
+  useEffect(() => {
+    setIsConfiguredLocal(isGeminiConfigured)
+  }, [isGeminiConfigured])
+
+  const handleSaveApiKey = () => {
+    if (apiKeyInput.trim().length > 20) {
+      const success = setApiKey(apiKeyInput.trim())
+      if (success) {
+        setIsConfiguredLocal(true)
+        toast.success('System Online', 'Gemini AI Core is now connected.')
+        setApiKeyInput('')
+      } else {
+        toast.error('Connection Failed', 'Invalid API Key provided.')
+      }
+    }
+  }
+
   return (
     <div className="hud-panel p-5">
       {/* Header */}
@@ -157,29 +179,49 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
       </div>
 
       {/* API Status */}
-      <div className={`mb-4 p-3 rounded-lg flex items-center gap-3 ${
-        isGeminiConfigured 
+      <div className={`mb-4 p-3 rounded-lg flex flex-col gap-3 ${
+        isConfiguredLocal 
           ? 'bg-green-400/10 border border-green-400/20' 
           : 'bg-yellow-400/10 border border-yellow-400/20'
       }`}>
-        {isGeminiConfigured ? (
-          <>
-            <Wifi size={16} className="text-green-400" />
-            <div className="flex-1">
-              <p className="text-xs text-green-400 font-medium">Gemini AI Connected</p>
-              <p className="text-[10px] text-green-400/60">Voice + Neural core operational</p>
-            </div>
-            <CheckCircle size={14} className="text-green-400" />
-          </>
-        ) : (
-          <>
-            <WifiOff size={16} className="text-yellow-400" />
-            <div className="flex-1">
-              <p className="text-xs text-yellow-400 font-medium">Demo Mode Active</p>
-              <p className="text-[10px] text-yellow-400/60">Add API key for full AI + Voice</p>
-            </div>
-            <AlertTriangle size={14} className="text-yellow-400" />
-          </>
+        <div className="flex items-center gap-3">
+          {isConfiguredLocal ? (
+            <>
+              <Wifi size={16} className="text-green-400" />
+              <div className="flex-1">
+                <p className="text-xs text-green-400 font-medium">Gemini AI Connected</p>
+                <p className="text-[10px] text-green-400/60">Voice + Neural core operational</p>
+              </div>
+              <CheckCircle size={14} className="text-green-400" />
+            </>
+          ) : (
+            <>
+              <WifiOff size={16} className="text-yellow-400" />
+              <div className="flex-1">
+                <p className="text-xs text-yellow-400 font-medium">Demo Mode Active</p>
+                <p className="text-[10px] text-yellow-400/60">AI features are currently simulated</p>
+              </div>
+              <AlertTriangle size={14} className="text-yellow-400" />
+            </>
+          )}
+        </div>
+        
+        {!isConfiguredLocal && (
+          <div className="flex gap-2 mt-1">
+            <input 
+              type="password" 
+              placeholder="Paste Gemini API Key here..."
+              value={apiKeyInput}
+              onChange={(e) => setApiKeyInput(e.target.value)}
+              className="flex-1 bg-stark-dark/50 border border-yellow-400/30 text-white text-xs rounded p-1.5 outline-none focus:border-yellow-400"
+            />
+            <button 
+              onClick={handleSaveApiKey}
+              className="bg-yellow-400/20 hover:bg-yellow-400/40 text-yellow-400 text-xs px-3 rounded transition-colors"
+            >
+              Connect
+            </button>
+          </div>
         )}
       </div>
 

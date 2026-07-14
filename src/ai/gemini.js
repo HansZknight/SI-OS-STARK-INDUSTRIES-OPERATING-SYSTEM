@@ -5,7 +5,7 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const API_KEY = import.meta.env.STARK_GEMINI_API_KEY
+let API_KEY = localStorage.getItem('stark_gemini_api_key') || import.meta.env.STARK_GEMINI_API_KEY || ''
 const AI_NAME = import.meta.env.STARK_AI_NAME || 'J.A.R.V.I.S'
 const MODEL_NAME = 'gemini-flash-latest'
 
@@ -1395,6 +1395,17 @@ export const isConfigured = () => {
   return API_KEY && !API_KEY.includes('your_') && API_KEY.length > 20
 }
 
+export const setApiKey = (key) => {
+  API_KEY = key
+  if (key) {
+    localStorage.setItem('stark_gemini_api_key', key)
+  } else {
+    localStorage.removeItem('stark_gemini_api_key')
+  }
+  // Try to re-initialize
+  return initializeGemini()
+}
+
 export const getAIStatus = () => ({
   configured: isConfigured(),
   initialized: !!model,
@@ -1409,6 +1420,7 @@ export default {
   sendMessage,
   resetChat,
   isConfigured,
+  setApiKey,
   getAIStatus,
   pingGemini,
   announceGeminiRestored,
