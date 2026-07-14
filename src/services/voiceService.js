@@ -190,6 +190,10 @@ class VoiceService {
     voice = voices.find(v => (v.lang.includes('en-GB') || v.lang.includes('en_GB')) && !v.name.toLowerCase().includes('female'))
     if (voice) return voice
     
+    // Priority 5.5: German Voice (User requested German accent deep voice)
+    voice = voices.find(v => (v.lang.includes('de-DE') || v.lang.includes('de_DE')) && !v.name.toLowerCase().includes('female'))
+    if (voice) return voice
+
     // Priority 6: Any US English (avoid female)
     voice = voices.find(v => (v.lang.includes('en-US') || v.lang.includes('en_US')) && !v.name.toLowerCase().includes('female'))
     if (voice) return voice
@@ -320,6 +324,7 @@ class VoiceService {
       // Use selected male voice
       if (this.selectedVoice) {
         utterance.voice = this.selectedVoice
+        utterance.lang = this.selectedVoice.lang || 'en-GB'
       } else {
         // Try to find male voice again
         const voices = this.synthesis.getVoices()
@@ -327,6 +332,9 @@ class VoiceService {
         if (maleVoice) {
           utterance.voice = maleVoice
           this.selectedVoice = maleVoice
+          utterance.lang = maleVoice.lang || 'en-GB'
+        } else {
+          utterance.lang = 'en-GB'
         }
       }
       
