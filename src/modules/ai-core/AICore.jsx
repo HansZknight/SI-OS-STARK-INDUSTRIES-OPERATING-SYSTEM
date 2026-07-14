@@ -325,12 +325,8 @@ const ChatInterface = ({ isGeminiConfigured, onVoiceStateChange }) => {
       if (result.isFinal) {
         setInput(result.transcript)
         setInterimTranscript('')
-        // Auto-send on voice input
-        setTimeout(() => {
-          if (result.transcript.trim()) {
-            handleSend(result.transcript)
-          }
-        }, 100)
+        // Removed auto-send here to ensure we use manual "Tap to Send" or "Tap Mic to Stop & Send"
+        // This is required for mobile browsers to allow audio autoplay.
       } else {
         setInterimTranscript(result.transcript)
       }
@@ -452,7 +448,13 @@ const ChatInterface = ({ isGeminiConfigured, onVoiceStateChange }) => {
 
     if (isListening) {
       voiceService.stopListening()
-      toast.info('Voice Input', 'Stopped listening')
+      const textToSend = (input || interimTranscript).trim()
+      if (textToSend) {
+        // Since this is triggered by a direct user tap, mobile audio autoplay will work!
+        handleSend(textToSend)
+      } else {
+        toast.info('Voice Input', 'Stopped listening')
+      }
     } else {
       // Check microphone permissions first
       navigator.permissions.query({ name: 'microphone' }).then((result) => {
