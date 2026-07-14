@@ -11,10 +11,15 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 }
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+}
+
 const OverviewTab = () => {
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6">
+    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+      <motion.div className="grid grid-cols-1 gap-6" variants={itemVariants}>
         <div className="hud-panel p-6">
           <SystemMetricsChart />
         </div>
@@ -137,7 +142,7 @@ const OverviewTab = () => {
           ))}
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   )
 }
 

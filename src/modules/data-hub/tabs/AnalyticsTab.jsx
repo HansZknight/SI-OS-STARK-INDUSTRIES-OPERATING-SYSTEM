@@ -7,6 +7,11 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 }
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+}
+
 const AnalyticsTab = () => {
   const [isProcessing, setIsProcessing] = useState(true)
 
@@ -16,7 +21,7 @@ const AnalyticsTab = () => {
   }, [])
 
   return (
-    <div className="space-y-6">
+    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
       <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" variants={itemVariants}>
         {[
           { label: 'Quantum Processing Load', value: '87.4%', icon: Brain, color: 'arc', trend: '+4.2%' },
@@ -106,7 +111,7 @@ const AnalyticsTab = () => {
           </div>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
