@@ -411,7 +411,11 @@ const ChatInterface = ({ isGeminiConfigured, onVoiceStateChange }) => {
   }, [])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    // On mobile, users requested NOT to auto-scroll so they can keep watching the 3D Core
+    if (!isMobile) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [messages])
 
   useEffect(() => {
