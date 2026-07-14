@@ -26,7 +26,7 @@ const OverviewTab = () => {
         <div className="hud-panel p-6">
           <ProjectActivityChart />
         </div>
-      </div>
+      </motion.div>
 
       {/* Data Sources Overview */}
       <motion.div className="hud-panel p-6" variants={itemVariants}>
