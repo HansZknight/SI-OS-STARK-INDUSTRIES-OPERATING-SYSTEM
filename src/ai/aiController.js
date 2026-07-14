@@ -1268,16 +1268,25 @@ export const initializeGemini = () => {
 export const startNewChat = () => {
   if (!model || quotaExceeded) return null
 
+  const bridgeInstruction = `
+If the user asks you to open an application or website, reply naturally and append EXACTLY ONE of the following secret codes at the very end of your response:
+- For Spotify: [CMD:OPEN_SPOTIFY]
+- For WhatsApp: [CMD:OPEN_WHATSAPP]
+- For YouTube: [CMD:OPEN_YOUTUBE]
+- For VS Code: [CMD:OPEN_VSCODE]
+Never mention these codes to the user, just append them.
+`
+
   try {
     if (activeProvider === 'gemini') {
       chat = model.startChat({
         history: [
           { role: 'user', parts: [{ text: 'Be J.A.R.V.I.S' }] },
-          { role: 'model', parts: [{ text: `${JARVIS_PROMPT}\n\nOnline, Sir.` }] }
+          { role: 'model', parts: [{ text: `${JARVIS_PROMPT}\n\n${bridgeInstruction}\n\nOnline, Sir.` }] }
         ]
       })
     } else {
-      chat = universalAdapter.startChat(`${JARVIS_PROMPT}\n\nMaintain this persona completely. Always refer to me as "Sir".`)
+      chat = universalAdapter.startChat(`${JARVIS_PROMPT}\n\n${bridgeInstruction}\n\nMaintain this persona completely. Always refer to me as "Sir".`)
     }
     return chat
   } catch (error) {
@@ -1326,7 +1335,21 @@ export const sendMessage = async (message) => {
 
   try {
     const result = await chat.sendMessage(message)
-    const text = result.response.text()
+    let text = result.response.text()
+    
+    // Check for local bridge commands
+    const cmdMatch = text.match(/\[CMD:([^\]]+)\]/i);
+    if (cmdMatch) {
+      const command = cmdMatch[1];
+      text = text.replace(/\[CMD:([^\]]+)\]/i, '').trim();
+      
+      // Fire-and-forget to local bridge
+      fetch('http://localhost:5000/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: command })
+      }).catch(e => console.log('[Stark Bridge] Not reachable.'));
+    }
     
     // 🔥 AUTO ANNOUNCE YANG REAL - Trigger SETELAH REQUEST SUKSES
     if (!geminiReady) {
@@ -1365,9 +1388,22 @@ export const sendMessage = async (message) => {
 
         try {
           const retry = await newChat.sendMessage(message)
+          let retryText = retry.response.text()
+          
+          const cmdMatch = retryText.match(/\[CMD:([^\]]+)\]/i);
+          if (cmdMatch) {
+            const command = cmdMatch[1];
+            retryText = retryText.replace(/\[CMD:([^\]]+)\]/i, '').trim();
+            fetch('http://localhost:5000/execute', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: command })
+            }).catch(e => console.log('[Stark Bridge] Not reachable.'));
+          }
+
           return {
             success: true,
-            content: retry.response.text(),
+            content: retryText,
             isDemo: false
           }
         } catch (retryError) {
