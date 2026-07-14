@@ -154,10 +154,10 @@ const MetricCard = ({ icon: Icon, label, value, unit, trend, trendValue, color =
       </div>
       
       <div className="mb-4 relative z-10">
-        <p className="text-xs text-white/60 uppercase tracking-widest mb-1 font-medium font-display">{label}</p>
-        <div className="flex items-baseline gap-2">
-          <span className="text-4xl font-display font-bold text-glow tracking-wider">{value}</span>
-          {unit && <span className="text-sm text-arc-500/70 font-medium font-mono tracking-widest">{unit}</span>}
+        <p className="text-xs text-white/60 uppercase tracking-widest mb-1 font-medium font-display truncate">{label}</p>
+        <div className="flex items-baseline gap-1.5 sm:gap-2">
+          <span className="text-3xl sm:text-4xl font-display font-bold text-glow tracking-wider">{value}</span>
+          {unit && <span className="text-xs sm:text-sm text-arc-500/70 font-medium font-mono tracking-widest">{unit}</span>}
         </div>
       </div>
 

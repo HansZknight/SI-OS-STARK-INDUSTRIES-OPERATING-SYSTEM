@@ -399,24 +399,25 @@ const TopBar = ({ sidebarCollapsed, onMenuClick, onNotificationClick, onExportCl
       className={`fixed top-0 right-0 z-30 h-16 flex items-center justify-between px-4 lg:px-6 bg-stark-darker/80 backdrop-blur-xl border-b border-arc-500/10 transition-all duration-300 left-0 ${sidebarCollapsed ? 'lg:left-[72px]' : 'lg:left-[280px]'}`}
     >
       {/* Left Section */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center flex-1 min-w-0 mr-4 gap-2 sm:gap-4">
         {/* Mobile Menu Button */}
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-lg text-white/60 hover:text-white hover:bg-arc-500/10 transition-colors"
+          className="lg:hidden p-2 -ml-2 rounded-lg text-white/60 hover:text-white hover:bg-arc-500/10 transition-colors flex-shrink-0"
         >
           <Menu size={20} />
         </button>
 
         {/* Page Title */}
-        <div>
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <currentPage.icon size={18} className="text-arc-500" />
-            <h2 className="text-lg font-display font-semibold text-white tracking-wide">
-              {currentPage.label}
+            <currentPage.icon size={18} className="text-arc-500 flex-shrink-0 hidden sm:block" />
+            <h2 className="text-base sm:text-lg font-display font-semibold text-white tracking-wide truncate">
+              <span className="hidden sm:inline">{currentPage.label}</span>
+              <span className="sm:hidden">{currentPage.shortLabel}</span>
             </h2>
           </div>
-          <p className="text-xs text-white/40 mt-0.5">
+          <p className="text-xs text-white/40 mt-0.5 truncate hidden sm:block">
             {currentPage.description}
           </p>
         </div>
