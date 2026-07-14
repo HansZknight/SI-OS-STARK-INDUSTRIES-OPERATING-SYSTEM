@@ -1283,12 +1283,12 @@ If the user asks you to PLAY or SEARCH a specific song, artist, video, or info, 
 - To play/search on YouTube: [CMD:SEARCH_YOUTUBE|video name]
 - To search Google for information: [CMD:SEARCH_GOOGLE|search query]
 
+You are allowed to output MULTIPLE secret codes in a single response if the user asks you to do multiple things at once (Multitasking).
+
 Examples:
 User: "Play Hans Zimmer on Spotify" -> AI: "Playing Hans Zimmer for you, Sir. [CMD:SEARCH_SPOTIFY|Hans Zimmer]"
-User: "Search for Iron Man trailer on YouTube" -> AI: "Right away. [CMD:SEARCH_YOUTUBE|Iron Man trailer]"
-User: "Search for weather in Tokyo on Google" -> AI: "Searching Google now. [CMD:SEARCH_GOOGLE|weather in Tokyo]"
-User: "Show me system diagnostics" -> AI: "Opening Task Manager, Sir. [CMD:OPEN_TASKMGR]"
-User: "Show me the crypto market" -> AI: "Opening TradingView. [CMD:OPEN_TRADINGVIEW]"
+User: "Open Spotify and WhatsApp" -> AI: "Opening both for you, Sir. [CMD:OPEN_SPOTIFY] [CMD:OPEN_WHATSAPP]"
+User: "Show me system diagnostics and open VS Code" -> AI: "Right away, Sir. [CMD:OPEN_TASKMGR] [CMD:OPEN_VSCODE]"
 Never mention these codes to the user, just append them.
 `
 
@@ -1353,21 +1353,23 @@ export const sendMessage = async (message) => {
     let text = result.response.text()
     
     // Check for local bridge commands
-    const cmdMatch = text.match(/\[CMD:([^\]]+)\]/i);
-    if (cmdMatch) {
-      const fullCommand = cmdMatch[1];
-      text = text.replace(/\[CMD:([^\]]+)\]/i, '').trim();
-      
-      const parts = fullCommand.split('|');
-      const command = parts[0];
-      const query = parts.length > 1 ? parts[1] : '';
-      
-      // Fire-and-forget to local bridge
-      fetch('http://localhost:5000/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: command, query: query })
-      }).catch(e => console.log('[Stark Bridge] Not reachable.'));
+    const cmdMatches = [...text.matchAll(/\[CMD:([^\]]+)\]/ig)];
+    if (cmdMatches.length > 0) {
+      cmdMatches.forEach(match => {
+        const fullCommand = match[1];
+        text = text.replace(match[0], '').trim();
+        
+        const parts = fullCommand.split('|');
+        const command = parts[0];
+        const query = parts.length > 1 ? parts[1] : '';
+        
+        // Fire-and-forget to local bridge
+        fetch('http://localhost:5000/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: command, query: query })
+        }).catch(e => console.log('[Stark Bridge] Not reachable.'));
+      });
     }
     
     // 🔥 AUTO ANNOUNCE YANG REAL - Trigger SETELAH REQUEST SUKSES
@@ -1409,20 +1411,22 @@ export const sendMessage = async (message) => {
           const retry = await newChat.sendMessage(message)
           let retryText = retry.response.text()
           
-          const cmdMatch = retryText.match(/\[CMD:([^\]]+)\]/i);
-          if (cmdMatch) {
-            const fullCommand = cmdMatch[1];
-            retryText = retryText.replace(/\[CMD:([^\]]+)\]/i, '').trim();
-            
-            const parts = fullCommand.split('|');
-            const command = parts[0];
-            const query = parts.length > 1 ? parts[1] : '';
+          const cmdMatches = [...retryText.matchAll(/\[CMD:([^\]]+)\]/ig)];
+          if (cmdMatches.length > 0) {
+            cmdMatches.forEach(match => {
+              const fullCommand = match[1];
+              retryText = retryText.replace(match[0], '').trim();
+              
+              const parts = fullCommand.split('|');
+              const command = parts[0];
+              const query = parts.length > 1 ? parts[1] : '';
 
-            fetch('http://localhost:5000/execute', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ action: command, query: query })
-            }).catch(e => console.log('[Stark Bridge] Not reachable.'));
+              fetch('http://localhost:5000/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: command, query: query })
+              }).catch(e => console.log('[Stark Bridge] Not reachable.'));
+            });
           }
 
           return {
