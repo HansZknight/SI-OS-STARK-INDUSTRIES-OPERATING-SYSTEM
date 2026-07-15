@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import electron from 'vite-plugin-electron'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -11,8 +12,12 @@ const __dirname = path.dirname(__filename)
 // Build System optimized for high-performance rendering
 
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
+    electron({
+      entry: 'electron/main.js',
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
