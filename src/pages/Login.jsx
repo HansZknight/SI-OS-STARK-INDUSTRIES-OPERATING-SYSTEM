@@ -8,6 +8,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../stores/authStore';
 import { toast } from '../components/ui/Toast';
+import { analyzeVoiceLogin } from '../ai/aiController';
 
 // Icons
 import { Lock, User, Fingerprint, Mic, Eye, EyeOff, Volume2, VolumeX } from 'lucide-react';
@@ -77,6 +78,17 @@ const Login = () => {
   
   // Refs
   const recognitionRef = useRef(null);
+  const voiceTextRef = useRef('');
+  const isListeningRef = useRef(false);
+  
+  // Keep refs in sync
+  useEffect(() => {
+    voiceTextRef.current = voiceText;
+  }, [voiceText]);
+  
+  useEffect(() => {
+    isListeningRef.current = isListening;
+  }, [isListening]);
   
   // Check authentication status and redirect if needed
   useEffect(() => {
@@ -96,6 +108,7 @@ const Login = () => {
       recognitionRef.current = new window.webkitSpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US'; // Set to English
       
       recognitionRef.current.onresult = (event) => {
         const transcript = Array.from(event.results)
@@ -107,14 +120,17 @@ const Login = () => {
       };
       
       recognitionRef.current.onend = () => {
-        if (isListening) {
-          // Auto-restart if still in listening mode
-          recognitionRef.current.start();
+        const currentText = voiceTextRef.current;
+        const currentIsListening = isListeningRef.current;
+        
+        if (currentText.trim() && currentText !== 'Listening...' && currentText !== 'Analyzing neural intent...') {
+          // User finished speaking, process immediately
+          setIsListening(false);
+          handleVoiceLogin(currentText);
+        } else if (currentIsListening) {
+          // Restart listening only if nothing was said
+          try { recognitionRef.current.start(); } catch(e) {}
         } else {
-          // Process the final transcript when done
-          if (voiceText.trim()) {
-            handleVoiceLogin(voiceText);
-          }
           setVoiceText('');
         }
       };
@@ -132,7 +148,7 @@ const Login = () => {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, navigate, from, isListening, voiceText]);
+  }, [isAuthenticated, navigate, from]);
   
   // Play sound effect
   const playSound = (sound) => {
@@ -227,62 +243,48 @@ const Login = () => {
     }
   };
   
-  // Handle voice login
+  // Handle voice login via AI
   const handleVoiceLogin = async (transcript) => {
-    const command = transcript.toLowerCase().trim();
+    setIsLoading(true);
+    setVoiceText('Analyzing neural intent...');
     
-    // Natural language bypass for Tony Stark
-    if (command.includes('jarvis') || command.includes('authorize') || command.includes('tony stark') || command.includes('log me in')) {
-      try {
-        setVoiceText('Voice recognized: Tony Stark. Authorizing...');
-        await loginWithVoice('tony@stark.com');
-        playSound(successSound);
-        toast.success('Voice Login', 'Welcome back, Sir.');
-        navigate(from, { replace: true });
-      } catch (error) {
-        console.error('Voice login error:', error);
-        playSound(errorSound);
-        toast.error('Voice Login', 'Voice authentication failed. Please try again.');
-        setVoiceText('');
-      }
-      return;
-    }
-    
-    // Fallback for regular email/pass dictation
-    if (command.includes('login') || command.includes('sign in')) {
-      const emailMatch = command.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/);
-      const passMatch = command.match(/password\s+(\w+)/i) || command.match(/(?<=is\s|'s\s|\s)(\w+)$/i);
+    try {
+      const aiResponse = await analyzeVoiceLogin(transcript);
       
-      if (emailMatch && passMatch) {
-        const email = emailMatch[0];
-        const password = passMatch[1];
+      if (aiResponse.authorize) {
+        setVoiceText(aiResponse.message || 'Identity confirmed. Authorizing...');
+        playSound(successSound);
         
-        try {
-          await login(email, password);
-          playSound(successSound);
-          toast.success('Voice Login', 'Voice authentication successful!');
-          navigate(from, { replace: true });
-        } catch (error) {
-          console.error('Voice login error:', error);
-          playSound(errorSound);
-          toast.error('Voice Login', 'Voice authentication failed. Please try again.');
+        // Use extracted credentials if available, otherwise fallback to default Tony Stark
+        if (aiResponse.email && aiResponse.password) {
+           await login(aiResponse.email, aiResponse.password);
+        } else {
+           await loginWithVoice('tony@stark.com');
         }
+        
+        toast.success('Voice Authentication', 'Welcome back, Sir.');
+        navigate(from, { replace: true });
       } else {
-        setVoiceText('Please say your email and password clearly.');
-        setTimeout(() => setVoiceText(''), 2000);
+        // AI determined the user is not trying to login, or denied access
+        setVoiceText(aiResponse.message || 'Access denied.');
+        playSound(errorSound);
+        toast.error('Authentication', aiResponse.message || 'Unrecognized voice command.');
+        setTimeout(() => {
+          setVoiceText('');
+          setIsListening(false);
+          if (recognitionRef.current) {
+            recognitionRef.current.stop();
+          }
+        }, 3000);
       }
-    } else if (command.includes('cancel') || command.includes('stop')) {
-      setVoiceText('Voice login cancelled.');
-      setTimeout(() => {
-        setVoiceText('');
-        setIsListening(false);
-        if (recognitionRef.current) {
-          recognitionRef.current.stop();
-        }
-      }, 1500);
-    } else {
-      setVoiceText('Say "Jarvis, log me in" or "Authorize Tony Stark"');
+    } catch (error) {
+      console.error('AI Voice login error:', error);
+      playSound(errorSound);
+      toast.error('System Error', 'Voice authentication server failed.');
+      setVoiceText('Neural core offline. Try manual login.');
       setTimeout(() => setVoiceText(''), 3000);
+    } finally {
+      setIsLoading(false);
     }
   };
   

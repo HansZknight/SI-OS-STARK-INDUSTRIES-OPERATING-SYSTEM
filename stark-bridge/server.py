@@ -136,6 +136,48 @@ def execute():
             threading.Thread(target=lambda: pyautogui.scroll(500)).start()
         return jsonify({"status": "success", "executed": action})
         
+    elif action in ["MEDIA_PLAY_PAUSE", "MEDIA_NEXT", "MEDIA_PREV"]:
+        import pyautogui
+        print(f"[STARK BRIDGE] Media control: {action}")
+        if action == "MEDIA_PLAY_PAUSE":
+            threading.Thread(target=lambda: pyautogui.press('playpause')).start()
+        elif action == "MEDIA_NEXT":
+            threading.Thread(target=lambda: pyautogui.press('nexttrack')).start()
+        elif action == "MEDIA_PREV":
+            threading.Thread(target=lambda: pyautogui.press('prevtrack')).start()
+        return jsonify({"status": "success", "executed": action})
+        
+    elif action == "TOGGLE_DARK_MODE":
+        import winreg
+        print(f"[STARK BRIDGE] Toggling Dark Mode")
+        def toggle_dark_mode():
+            try:
+                registry = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
+                key = winreg.OpenKey(registry, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize", 0, winreg.KEY_ALL_ACCESS)
+                value, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+                new_value = 0 if value == 1 else 1
+                winreg.SetValueEx(key, "AppsUseLightTheme", 0, winreg.REG_DWORD, new_value)
+                winreg.SetValueEx(key, "SystemUsesLightTheme", 0, winreg.REG_DWORD, new_value)
+                winreg.CloseKey(key)
+                print(f"[STARK BRIDGE] Dark mode toggled to {'Light' if new_value == 1 else 'Dark'}")
+            except Exception as e:
+                print(f"[STARK BRIDGE] Failed to toggle dark mode: {e}")
+        threading.Thread(target=toggle_dark_mode).start()
+        return jsonify({"status": "success", "executed": action})
+
+    elif action == "LOCKDOWN_PROTOCOL":
+        import pyautogui
+        print(f"[STARK BRIDGE] INITIATING LOCKDOWN PROTOCOL")
+        def lockdown():
+            # Mute Volume
+            pyautogui.press('volumemute')
+            # Minimize all windows
+            pyautogui.hotkey('win', 'd')
+            # Lock PC
+            os.system("rundll32.exe user32.dll,LockWorkStation")
+        threading.Thread(target=lockdown).start()
+        return jsonify({"status": "success", "executed": action})
+        
     elif action == "EMPTY_TRASH":
         print(f"[STARK BRIDGE] Emptying Recycle Bin")
         threading.Thread(target=lambda: os.system("powershell.exe -NoProfile -Command Clear-RecycleBin -Confirm:$false")).start()
@@ -290,7 +332,121 @@ def execute():
         threading.Thread(target=wiggle_mouse).start()
         return jsonify({"status": "success", "executed": action})
         
+    elif action == "KILL_APP":
+        app_name = data.get('query', '').strip()
+        print(f"[STARK BRIDGE] Force killing app: {app_name}")
+        if app_name:
+            # Menggunakan taskkill paksa di Windows
+            threading.Thread(target=lambda: os.system(f'taskkill /f /im "{app_name}.exe"')).start()
+            return jsonify({"status": "success", "executed": action, "app": app_name})
+        return jsonify({"status": "error", "message": "No app name provided"}), 400
+        
     return jsonify({"status": "error", "message": "Unknown command"}), 400
+
+@app.route('/listen', methods=['GET', 'POST'])
+def listen_microphone():
+    try:
+        import speech_recognition as sr
+        import sounddevice as sd
+        import scipy.io.wavfile as wav
+        
+        print("[STARK BRIDGE] Adjusting for ambient noise and preparing to listen...")
+        fs = 16000  # Sample rate
+        seconds = 5  # Duration of recording
+        
+        print("[STARK BRIDGE] Listening for voice commands (5 seconds)...")
+        # Record audio
+        myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=1, dtype='int16')
+        sd.wait()  # Wait until recording is finished
+        
+        # Save as WAV file temporarily
+        wav.write('temp_audio.wav', fs, myrecording)
+        
+        r = sr.Recognizer()
+        with sr.AudioFile('temp_audio.wav') as source:
+            audio = r.record(source)
+            
+        print("[STARK BRIDGE] Processing speech via Google Speech-to-Text...")
+        lang = request.args.get('lang', 'id-ID')
+        text = r.recognize_google(audio, language=lang)
+        
+        print(f"[STARK BRIDGE] Recognized: {text}")
+        
+        # Cleanup
+        try:
+            os.remove('temp_audio.wav')
+        except:
+            pass
+            
+        return jsonify({"status": "success", "text": text})
+    except sr.WaitTimeoutError:
+        print("[STARK BRIDGE] Listening timeout. No speech detected.")
+        return jsonify({"status": "error", "message": "No speech detected"}), 408
+    except sr.UnknownValueError:
+        print("[STARK BRIDGE] Speech not understood.")
+        return jsonify({"status": "error", "message": "Could not understand audio"}), 400
+    except Exception as e:
+        print(f"[STARK BRIDGE] Voice error: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/speak', methods=['GET'])
+def speak_text():
+    text = request.args.get('text', '')
+    voice = request.args.get('voice', 'en-GB-ThomasNeural') # Default to UK Male
+    
+    if not text:
+        return jsonify({"status": "error", "message": "No text provided"}), 400
+        
+    try:
+        import edge_tts
+        import asyncio
+        from flask import send_file
+        import time
+        import glob
+        
+        # Cleanup old mp3 files to prevent piling up
+        for old_file in glob.glob("temp_speech_*.mp3"):
+            try:
+                os.remove(old_file)
+            except:
+                pass
+                
+        filename = f"temp_speech_{int(time.time())}.mp3"
+        filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+        
+        async def generate_speech():
+            communicate = edge_tts.Communicate(text, voice)
+            await communicate.save(filepath)
+            
+        print(f"[STARK BRIDGE] Generating Neural Speech for: {text[:30]}...")
+        asyncio.run(generate_speech())
+        
+        return send_file(filepath, mimetype="audio/mpeg")
+    except Exception as e:
+        print(f"[STARK BRIDGE] Speech synthesis error: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/context', methods=['GET'])
+def get_context():
+    try:
+        import psutil
+        battery = psutil.sensors_battery()
+        batt_percent = battery.percent if battery else "N/A"
+        batt_plugged = battery.power_plugged if battery else False
+        
+        cpu_usage = psutil.cpu_percent(interval=0.5)
+        ram = psutil.virtual_memory()
+        ram_usage = ram.percent
+        
+        return jsonify({
+            "status": "success",
+            "cpu": cpu_usage,
+            "ram": ram_usage,
+            "battery": batt_percent,
+            "plugged": batt_plugged
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/ping', methods=['GET'])
 def ping():
@@ -301,5 +457,5 @@ if __name__ == '__main__':
     print("      STARK LOCAL BRIDGE INITIATED      ")
     print("========================================")
     print("J.A.R.V.I.S is now connected to your OS.")
-    print("Listening on port 5000...")
-    app.run(port=5000, host='127.0.0.1')
+    print("Listening on port 5000 (0.0.0.0)...")
+    app.run(port=5000, host='0.0.0.0')

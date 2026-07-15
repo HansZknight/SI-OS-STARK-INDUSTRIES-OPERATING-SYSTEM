@@ -1,12 +1,9 @@
-import { app, BrowserWindow, globalShortcut } from 'electron';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+import { app, BrowserWindow, globalShortcut } from "electron";
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename$1 = fileURLToPath(import.meta.url);
+const __dirname$1 = path.dirname(__filename$1);
 let mainWindow;
-
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 600,
@@ -20,17 +17,12 @@ function createWindow() {
       contextIsolation: false
     }
   });
-
-  // Untuk Vite Dev Server
   if (process.env.VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
   } else {
-    // Untuk Production Build
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    mainWindow.loadFile(path.join(__dirname$1, "../dist/index.html"));
   }
-
-  // Registrasi Global Shortcut untuk menyembunyikan/menampilkan J.A.R.V.I.S
-  globalShortcut.register('CommandOrControl+Space', () => {
+  globalShortcut.register("CommandOrControl+Space", () => {
     if (mainWindow.isVisible()) {
       mainWindow.hide();
     } else {
@@ -38,15 +30,12 @@ function createWindow() {
     }
   });
 }
-
 app.whenReady().then(() => {
   createWindow();
-
-  app.on('activate', function () {
+  app.on("activate", function() {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
-
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit();
+app.on("window-all-closed", function() {
+  if (process.platform !== "darwin") app.quit();
 });

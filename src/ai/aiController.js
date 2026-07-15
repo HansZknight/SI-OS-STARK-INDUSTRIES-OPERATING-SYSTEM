@@ -1286,6 +1286,7 @@ If the user asks you to open an application or website, reply naturally and appe
 - To Change Volume: [CMD:VOLUME_UP], [CMD:VOLUME_DOWN], or [CMD:VOLUME_MUTE]
 - To Scroll page: [CMD:SCROLL_DOWN] or [CMD:SCROLL_UP]
 - To Empty Recycle Bin: [CMD:EMPTY_TRASH]
+- To Force Kill / Close an unresponsive App: [CMD:KILL_APP|app_name] (e.g. [CMD:KILL_APP|valorant])
 - To Read highlighted text aloud: [CMD:READ_TEXT]
 - To Take a Selfie via Webcam: [CMD:TAKE_SELFIE]
 - To Open Weather Radar: [CMD:OPEN_WEATHER_RADAR]
@@ -1296,6 +1297,11 @@ If the user asks you to open an application or website, reply naturally and appe
 - To Translate highlighted text: [CMD:TRANSLATE_TEXT]
 - To Search highlighted text on Google: [CMD:SEARCH_HIGHLIGHTED]
 - To Find/Wiggle the mouse cursor: [CMD:FIND_CURSOR]
+- To Play/Pause Media: [CMD:MEDIA_PLAY_PAUSE]
+- To Skip to Next Track: [CMD:MEDIA_NEXT]
+- To Go to Previous Track: [CMD:MEDIA_PREV]
+- To Toggle Windows Dark Mode/Light Mode: [CMD:TOGGLE_DARK_MODE]
+- To Initiate Lockdown Protocol (Mute, Lock, Minimize): [CMD:LOCKDOWN_PROTOCOL]
 
 If the user asks you to PLAY or SEARCH a specific song, artist, video, or info, use these codes instead:
 - To play/search on Spotify: [CMD:SEARCH_SPOTIFY|artist or song name]
@@ -1317,12 +1323,13 @@ User: "Close this window" -> AI: "Closing window. [CMD:CLOSE_WINDOW]"
 User: "Type: I am Iron Man" -> AI: "Typing it now, Sir. [CMD:TYPE_TEXT|I am Iron Man]"
 User: "Read this for me" -> AI: "Reading the text, Sir. [CMD:READ_TEXT]"
 User: "Take a selfie" -> AI: "Say cheese. [CMD:TAKE_SELFIE]"
-User: "Open the global weather radar" -> AI: "Opening Earth Nullschool. [CMD:OPEN_WEATHER_RADAR]"
-User: "Clear the screen" -> AI: "Minimizing everything. [CMD:SHOW_DESKTOP]"
-User: "Set a timer for 10 minutes" -> AI: "Timer set for 10 minutes, Sir. [CMD:SET_TIMER|10]"
+User: "Take a screenshot" -> AI: "Capturing screen. [CMD:TAKE_SCREENSHOT]"
+User: "Kill valorant" -> AI: "Terminating process. [CMD:KILL_APP|valorant]"
+User: "Initiate lockdown" -> AI: "Locking the system, Sir. [CMD:LOCKDOWN_PROTOCOL]"
 User: "Volume up and scroll down" -> AI: "Adjusting volume and scrolling. [CMD:VOLUME_UP] [CMD:SCROLL_DOWN]"
 User: "Take a screenshot" -> AI: "Capturing screen. [CMD:TAKE_SCREENSHOT]"
-User: "Initiate lockdown" -> AI: "Locking the system, Sir. [CMD:LOCK_PC]"
+User: "Skip this song" -> AI: "Skipping track. [CMD:MEDIA_NEXT]"
+User: "Turn on dark mode" -> AI: "Going dark, Sir. [CMD:TOGGLE_DARK_MODE]"
 User: "Play Hans Zimmer on Spotify" -> AI: "Playing Hans Zimmer for you, Sir. [CMD:SEARCH_SPOTIFY|Hans Zimmer]"
 User: "Open Spotify and WhatsApp" -> AI: "Opening both for you, Sir. [CMD:OPEN_SPOTIFY] [CMD:OPEN_WHATSAPP]"
 User: "Show me system diagnostics and open VS Code" -> AI: "Right away, Sir. [CMD:OPEN_TASKMGR] [CMD:OPEN_VSCODE]"
@@ -1386,7 +1393,32 @@ export const sendMessage = async (message) => {
   }
 
   try {
-    const result = await chat.sendMessage(message)
+    let contextStr = "";
+    
+    // Clipboard Intel Logic
+    const msgLower = message.toLowerCase();
+    if (msgLower.includes('clipboard') || msgLower.includes('copy') || msgLower.includes('salin') || msgLower.includes('kopas')) {
+      try {
+        const clipText = await navigator.clipboard.readText();
+        if (clipText) {
+          contextStr += `\n[CLIPBOARD CONTENT: "${clipText}"]\n(The user is asking you to process/analyze the clipboard text above.)\n`;
+        }
+      } catch(e) {
+        console.warn('[J.A.R.V.I.S] Failed to read clipboard:', e);
+      }
+    }
+
+    try {
+      const bridgeHost = window.location.hostname || '127.0.0.1';
+      const ctxRes = await fetch(`http://${bridgeHost}:5000/context`);
+      const ctx = await ctxRes.json();
+      if (ctx.status === 'success') {
+        contextStr = `\n[SYSTEM CONTEXT]\nCPU: ${ctx.cpu}%\nRAM: ${ctx.ram}%\nBattery: ${ctx.battery}%\nPlugged In: ${ctx.plugged}\n(Do not read out the context unless asked about it.)\n`;
+      }
+    } catch(e) {}
+    
+    const enrichedMessage = message + contextStr;
+    const result = await chat.sendMessage(enrichedMessage)
     let text = result.response.text()
     
     // Check for local bridge commands
@@ -1401,7 +1433,8 @@ export const sendMessage = async (message) => {
         const query = parts.length > 1 ? parts[1] : '';
         
         // Fire-and-forget to local bridge
-        fetch('http://localhost:5000/execute', {
+        const bridgeHost = window.location.hostname || '127.0.0.1';
+        fetch(`http://${bridgeHost}:5000/execute`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: command, query: query })
@@ -1458,7 +1491,8 @@ export const sendMessage = async (message) => {
               const command = parts[0];
               const query = parts.length > 1 ? parts[1] : '';
 
-              fetch('http://localhost:5000/execute', {
+              const bridgeHost = window.location.hostname || '127.0.0.1';
+              fetch(`http://${bridgeHost}:5000/execute`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: command, query: query })
@@ -1546,6 +1580,55 @@ export const getAIStatus = () => ({
   aiName: AI_NAME
 })
 
+export const analyzeVoiceLogin = async (transcript) => {
+  if (!API_KEY) {
+    initializeGemini();
+  }
+  
+  if (!isConfigured()) {
+    return { authorize: false, message: "Authentication server offline. API key missing." };
+  }
+  
+  const prompt = `You are JARVIS, a highly advanced AI system. The user is currently at the security login screen. 
+They just spoke the following into the microphone: "${transcript}"
+
+Task: Determine if the user is trying to log in, authenticate, or gain access.
+If YES, respond with exactly: [CMD:AUTHORIZE_LOGIN]
+If they are providing a specific email and password, extract them like this: [CMD:AUTHORIZE_LOGIN|email|password] (if no email/pass is found, just output [CMD:AUTHORIZE_LOGIN]).
+If NO (they are just talking nonsense), respond with a short JARVIS-like rejection message (e.g., "Access denied, Sir.").
+
+Do not include any other markdown.`;
+
+  try {
+    let resultText = '';
+    if (activeProvider === 'gemini') {
+      if (!model) initializeGemini();
+      if (!model) return { authorize: false, message: "Neural core offline." };
+      const tempModel = genAI.getGenerativeModel({ model: MODEL_PRIORITY[currentModelIndex] });
+      const result = await tempModel.generateContent(prompt);
+      resultText = result.response.text();
+    } else {
+      const adapter = new UniversalAIAdapter(API_KEY, activeProvider);
+      adapter.startChat('You are JARVIS at the login screen.');
+      const result = await adapter.sendMessage(prompt);
+      resultText = result.response.text();
+    }
+    
+    if (resultText.includes('[CMD:AUTHORIZE_LOGIN]')) {
+      const match = resultText.match(/\[CMD:AUTHORIZE_LOGIN\|([^\|]+)\|([^\]]+)\]/);
+      if (match) {
+         return { authorize: true, email: match[1], password: match[2], message: "Credentials accepted." };
+      }
+      return { authorize: true, message: resultText.replace('[CMD:AUTHORIZE_LOGIN]', '').trim() || "Voice recognized. Authorizing." };
+    } else {
+      return { authorize: false, message: resultText };
+    }
+  } catch (error) {
+    console.error('AI Login Error:', error);
+    return { authorize: false, message: "Authentication server unreachable." };
+  }
+}
+
 export default {
   initializeGemini,
   startNewChat,
@@ -1555,6 +1638,7 @@ export default {
   setApiKey,
   setProvider,
   getAIStatus,
+  analyzeVoiceLogin,
   pingGemini,
   announceGeminiRestored,
   checkGeminiAlive,

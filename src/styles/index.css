@@ -15,6 +15,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply bg-stark-dark text-stark-light overflow-hidden;
+  }
+  
+  /* Membuat aplikasi bisa di-drag di Desktop (Electron) HANYA pada Header */
+  header {
+    -webkit-app-region: drag;
+  }
+  
+  /* Supaya tombol dan input tetap bisa diklik */
+  button, input, a, select, textarea, .no-drag {
+    -webkit-app-region: no-drag;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    CSS CUSTOM PROPERTIES (VARIABLES)
    Stark Industries Design Tokens

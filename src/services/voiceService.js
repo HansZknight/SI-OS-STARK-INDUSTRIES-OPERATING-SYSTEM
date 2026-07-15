@@ -8,9 +8,12 @@ class VoiceService {
     // State
     this.isListening = false
     this.isSpeaking = false
-    this.recognition = null
     this.synthesis = null
     this.selectedVoice = null
+    this.audioElement = null // Untuk pemutar Neural TTS
+    this.neuralVoices = [] // Daftar suara Neural
+    this.wakeWordEngine = null
+    
     
     // Callbacks
     this.onResult = null
@@ -81,6 +84,12 @@ class VoiceService {
       this.recognition.onend = () => {
         this.isListening = false
         if (this.onEnd) this.onEnd()
+        
+        // Restart wake word
+        const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+        if (!isElectron && this.wakeWordEngine && !this.isSpeaking) {
+          try { this.wakeWordEngine.start(); } catch(e){}
+        }
       }
       
       this.recognition.onresult = (event) => {
@@ -123,6 +132,12 @@ class VoiceService {
           this.onError({ type: event.error, message: errorMessage })
         }
         if (this.onEnd) this.onEnd()
+        
+        // Restart wake word
+        const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+        if (!isElectron && this.wakeWordEngine && !this.isSpeaking) {
+          try { this.wakeWordEngine.start(); } catch(e){}
+        }
       }
       
       // Setup synthesis
@@ -136,6 +151,9 @@ class VoiceService {
         this.synthesis.onvoiceschanged = () => this.loadVoices()
       }
       
+      // Start wake word if web/mobile
+      setTimeout(() => this.startWakeWord(), 2000);
+      
     } catch (e) {
       console.error('[Voice] Init error:', e)
       this.isSupported = false
@@ -144,6 +162,21 @@ class VoiceService {
   
   // Load and select best male voice
   loadVoices() {
+    const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+    if (isElectron) {
+      this.neuralVoices = [
+        { name: 'en-GB-ThomasNeural', lang: 'en-GB', nameDisplay: 'J.A.R.V.I.S (UK Male - Deep)' },
+        { name: 'en-GB-RyanNeural', lang: 'en-GB', nameDisplay: 'J.A.R.V.I.S (UK Male - Clear)' },
+        { name: 'en-US-GuyNeural', lang: 'en-US', nameDisplay: 'J.A.R.V.I.S (US Male)' },
+        { name: 'id-ID-ArdiNeural', lang: 'id-ID', nameDisplay: 'J.A.R.V.I.S (Indonesian Male)' },
+        { name: 'en-GB-SoniaNeural', lang: 'en-GB', nameDisplay: 'F.R.I.D.A.Y (UK Female)' },
+        { name: 'id-ID-GadisNeural', lang: 'id-ID', nameDisplay: 'F.R.I.D.A.Y (Indonesian Female)' }
+      ];
+      this.selectedVoice = this.neuralVoices[0];
+      console.log('[Voice] Loaded Neural Voices for Desktop');
+      return;
+    }
+
     if (!this.synthesis) return
     
     const voices = this.synthesis.getVoices()
@@ -210,6 +243,8 @@ class VoiceService {
   
   // Get all available voices (for debugging)
   getVoices() {
+    const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+    if (isElectron) return this.neuralVoices || [];
     if (!this.synthesis) return []
     return this.synthesis.getVoices()
   }
@@ -250,6 +285,38 @@ class VoiceService {
   // Start listening
   startListening() {
     this.unlockAudio(); // Prime the audio engine during the click event
+
+    // Deteksi jika berjalan di Electron
+    const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+    if (isElectron) {
+      if (this.isListening) return true;
+      this.isListening = true;
+      if (this.onStart) this.onStart();
+      
+      console.log('[Voice] Menggunakan Python Bridge (stark-bridge) untuk Mendengar...');
+      
+      const bridgeHost = window.location.hostname || '127.0.0.1';
+      fetch(`http://${bridgeHost}:5000/listen?lang=id-ID`)
+        .then(res => res.json())
+        .then(data => {
+          this.isListening = false;
+          if (data.status === 'success') {
+            if (this.onResult) {
+              this.onResult({ transcript: data.text, isFinal: true, isWakeWord: false });
+            }
+          } else {
+            if (this.onError) this.onError({ type: 'bridge-error', message: data.message });
+          }
+          if (this.onEnd) this.onEnd();
+        })
+        .catch(err => {
+          this.isListening = false;
+          if (this.onError) this.onError({ type: 'network', message: 'Gagal terhubung ke stark-bridge' });
+          if (this.onEnd) this.onEnd();
+        });
+        
+      return true;
+    }
 
     if (!this.isSupported || !this.recognition) {
       console.warn('[Voice] Speech recognition not available')
@@ -314,6 +381,8 @@ class VoiceService {
   }
   
   getAvailableVoices() {
+    const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+    if (isElectron) return this.neuralVoices || [];
     return this.synthesis ? this.synthesis.getVoices() : []
   }
 
@@ -331,6 +400,46 @@ class VoiceService {
 
   // Speak text with male voice
   speak(text, options = {}) {
+    const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+    if (isElectron) {
+      console.log('[Voice] Menggunakan Neural TTS dari stark-bridge...');
+      try {
+        this.isSpeaking = true;
+        if (this.onSpeechStart) this.onSpeechStart();
+        
+        const bridgeHost = window.location.hostname || '127.0.0.1';
+        const voiceName = this.selectedVoice ? this.selectedVoice.name : 'en-GB-ThomasNeural';
+        const url = `http://${bridgeHost}:5000/speak?text=${encodeURIComponent(text)}&voice=${encodeURIComponent(voiceName)}`;
+        
+        if (this.audioElement) {
+          this.audioElement.pause();
+        }
+        
+        this.audioElement = new window.Audio(url);
+        this.audioElement.onended = () => {
+          this.isSpeaking = false;
+          if (this.onSpeechEnd) this.onSpeechEnd();
+        };
+        this.audioElement.onerror = (e) => {
+          console.error('[Voice] Audio element error:', e);
+          this.isSpeaking = false;
+          if (this.onSpeechEnd) this.onSpeechEnd();
+        };
+        
+        this.audioElement.play().catch(e => {
+          console.error('[Voice] Play error:', e);
+          this.isSpeaking = false;
+          if (this.onSpeechEnd) this.onSpeechEnd();
+        });
+        return true;
+      } catch (e) {
+        console.error('[Voice] Electron speak error:', e);
+        this.isSpeaking = false;
+        if (this.onSpeechEnd) this.onSpeechEnd();
+        return false;
+      }
+    }
+
     if (!this.synthesis) {
       console.warn('[Voice] Speech synthesis not available')
       return false
@@ -395,6 +504,11 @@ class VoiceService {
   
   // Stop speaking
   stopSpeaking() {
+    if (this.audioElement) {
+      try {
+        this.audioElement.pause();
+      } catch(e) {}
+    }
     if (this.synthesis) {
       try {
         this.synthesis.cancel()
@@ -403,10 +517,76 @@ class VoiceService {
       }
     }
     this.isSpeaking = false
+    
+    // Restart wake word
+    const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+    if (!isElectron && this.wakeWordEngine && !this.isListening) {
+      try { this.wakeWordEngine.start(); } catch(e){}
+    }
+  }
+
+  // Wake word untuk Web / Mobile
+  startWakeWord() {
+    const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+    if (isElectron) return; // Desktop uses Ctrl+Space shortcut
+    
+    try {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+      
+      this.wakeWordEngine = new SpeechRecognition();
+      this.wakeWordEngine.continuous = true;
+      this.wakeWordEngine.interimResults = true;
+      this.wakeWordEngine.lang = 'en-US';
+      
+      this.wakeWordEngine.onresult = (event) => {
+        if (this.isListening) return; // Jangan bentrok
+        
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const transcript = event.results[i][0].transcript.toLowerCase();
+          if (transcript.includes('jarvis') || transcript.includes('friday') || transcript.includes('hey jarvis')) {
+            console.log('[Voice] WAKE WORD DETECTED:', transcript);
+            this.wakeWordEngine.stop(); // Stop sementara
+            
+            // Kasih notif suara
+            this.speak("Yes sir?");
+            
+            // Mulai dengar perintah asli setelah 1 detik
+            setTimeout(() => {
+              this.startListening();
+            }, 1000);
+            return;
+          }
+        }
+      };
+      
+      this.wakeWordEngine.onend = () => {
+        // Auto-restart if it dies unexpectedly and we are not doing anything else
+        if (!this.isListening && !this.isSpeaking) {
+          try { this.wakeWordEngine.start(); } catch(e){}
+        }
+      };
+      
+      this.wakeWordEngine.start();
+      console.log('[Voice] Wake Word Engine Started for Web/Mobile');
+    } catch (e) {
+      console.error('[Voice] Wake Word error:', e);
+    }
   }
   
   // Set voice by name (manual selection)
   setVoice(voiceName) {
+    const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+    if (isElectron && this.neuralVoices) {
+      const voice = this.neuralVoices.find(v => v.name.includes(voiceName) || v.nameDisplay === voiceName);
+      if (voice) {
+        this.selectedVoice = voice;
+        console.log('[Voice] Neural Voice set to:', voice.nameDisplay || voice.name);
+        return true;
+      }
+      return false;
+    }
+
     if (!this.synthesis) return false
     
     const voices = this.synthesis.getVoices()
