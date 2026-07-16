@@ -1279,7 +1279,7 @@ If the user asks you to open an application or website, reply naturally and appe
 - For Task Manager (System Diagnostics): [CMD:OPEN_TASKMGR]
 - For Crypto/Trading Market Dashboard: [CMD:OPEN_TRADINGVIEW]
 - For Security Cameras (EarthCam): [CMD:OPEN_SECURITY_CAMS]
-- To Close Current Window/App: [CMD:CLOSE_WINDOW]
+- To Close/Exit the CURRENT ACTIVE Window ONLY: [CMD:CLOSE_WINDOW]
 - To Lock the Computer: [CMD:LOCK_PC]
 - To Take a Screenshot: [CMD:TAKE_SCREENSHOT]
 - To Open Downloads folder: [CMD:OPEN_DOWNLOADS]
@@ -1288,7 +1288,7 @@ If the user asks you to open an application or website, reply naturally and appe
 - To Change Volume: [CMD:VOLUME_UP], [CMD:VOLUME_DOWN], or [CMD:VOLUME_MUTE]
 - To Scroll page: [CMD:SCROLL_DOWN] or [CMD:SCROLL_UP]
 - To Empty Recycle Bin: [CMD:EMPTY_TRASH]
-- To Force Kill / Close an unresponsive App: [CMD:KILL_APP|app_name] (e.g. [CMD:KILL_APP|valorant])
+- To Close / Kill ANY specific App by name (e.g., whatsapp, steam, valorant): [CMD:KILL_APP|app_name]
 - To Read highlighted text aloud: [CMD:READ_TEXT]
 - To Take a Selfie via Webcam: [CMD:TAKE_SELFIE]
 - To Open Weather Radar: [CMD:OPEN_WEATHER_RADAR]
