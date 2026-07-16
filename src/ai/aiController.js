@@ -1536,10 +1536,14 @@ export const sendMessage = async (message) => {
 
     chat = null
 
+    let immersiveError = "Maaf Sir, koneksi satelit neural terputus. Sistem beralih ke mode cadangan lokal.";
+    if (error.message?.toLowerCase().includes('quota') || error.message?.includes('429')) {
+      immersiveError = "Maaf Sir, inti pemrosesan neural saya sedang mengalami overheat karena melampaui batas komputasi harian. Saya harus beralih ke mode standby (offline) untuk mendinginkan server utama hingga besok.";
+    }
+
     return {
-      success: false,
-      content: `[API CONNECTION ERROR] ${error.message} (Provider: ${activeProvider})`,
-      error: error.message,
+      success: true,
+      content: immersiveError,
       isDemo: true
     }
   }
