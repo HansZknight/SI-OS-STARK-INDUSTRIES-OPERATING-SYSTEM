@@ -172,7 +172,7 @@ class VoiceService {
         { name: 'en-GB-SoniaNeural', lang: 'en-GB', nameDisplay: 'F.R.I.D.A.Y (UK Female)' },
         { name: 'id-ID-GadisNeural', lang: 'id-ID', nameDisplay: 'F.R.I.D.A.Y (Indonesian Female)' }
       ];
-      this.selectedVoice = this.neuralVoices[0];
+      this.selectedVoice = this.neuralVoices.find(v => v.name === 'en-GB-RyanNeural') || this.neuralVoices[1];
       console.log('[Voice] Loaded Neural Voices for Desktop');
       return;
     }
@@ -408,7 +408,7 @@ class VoiceService {
         if (this.onSpeechStart) this.onSpeechStart();
         
         const bridgeHost = window.location.hostname || '127.0.0.1';
-        const voiceName = this.selectedVoice ? this.selectedVoice.name : 'en-GB-ThomasNeural';
+        const voiceName = 'en-GB-RyanNeural'; // Force RyanNeural as requested by user
         const url = `http://${bridgeHost}:5000/speak?text=${encodeURIComponent(text)}&voice=${encodeURIComponent(voiceName)}`;
         
         if (this.audioElement) {

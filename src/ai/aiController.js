@@ -1408,8 +1408,12 @@ export const sendMessage = async (message) => {
       }
     }
 
+    let bridgeHost = window.location.hostname || '127.0.0.1';
+    if (bridgeHost.includes('vercel.app') || bridgeHost.includes('github.io')) {
+      bridgeHost = '127.0.0.1';
+    }
+
     try {
-      const bridgeHost = window.location.hostname || '127.0.0.1';
       const ctxRes = await fetch(`http://${bridgeHost}:5000/context`);
       const ctx = await ctxRes.json();
       if (ctx.status === 'success') {
@@ -1433,12 +1437,16 @@ export const sendMessage = async (message) => {
         const query = parts.length > 1 ? parts[1] : '';
         
         // Fire-and-forget to local bridge
-        const bridgeHost = window.location.hostname || '127.0.0.1';
         fetch(`http://${bridgeHost}:5000/execute`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: command, query: query })
-        }).catch(e => console.log('[Stark Bridge] Not reachable.'));
+        }).catch(e => {
+          console.log('[Stark Bridge] Not reachable. Are you on Vercel?');
+          if (window.location.href.includes('https://')) {
+            console.warn('Browser blocked local OS control due to HTTPS Mixed Content Policy. Use Desktop App.');
+          }
+        });
       });
     }
     
@@ -1491,12 +1499,21 @@ export const sendMessage = async (message) => {
               const command = parts[0];
               const query = parts.length > 1 ? parts[1] : '';
 
-              const bridgeHost = window.location.hostname || '127.0.0.1';
+              let bridgeHost = window.location.hostname || '127.0.0.1';
+              if (bridgeHost.includes('vercel.app') || bridgeHost.includes('github.io')) {
+                bridgeHost = '127.0.0.1';
+              }
+
               fetch(`http://${bridgeHost}:5000/execute`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: command, query: query })
-              }).catch(e => console.log('[Stark Bridge] Not reachable.'));
+              }).catch(e => {
+                console.log('[Stark Bridge] Not reachable.');
+                if (window.location.href.includes('https://')) {
+                  console.warn('Browser blocked local OS control due to HTTPS Mixed Content Policy. Use Desktop App.');
+                }
+              });
             });
           }
 
