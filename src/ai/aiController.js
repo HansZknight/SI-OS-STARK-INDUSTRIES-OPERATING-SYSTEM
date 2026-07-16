@@ -1536,9 +1536,9 @@ export const sendMessage = async (message) => {
 
     chat = null
 
-    let immersiveError = "Maaf Sir, koneksi satelit neural terputus. Sistem beralih ke mode cadangan lokal.";
+    let immersiveError = "I apologize, Sir. The neural satellite connection has been lost. The system is switching to local backup mode.";
     if (error.message?.toLowerCase().includes('quota') || error.message?.includes('429')) {
-      immersiveError = "Maaf Sir, inti pemrosesan neural saya sedang mengalami overheat karena melampaui batas komputasi harian. Saya harus beralih ke mode standby (offline) untuk mendinginkan server utama hingga besok.";
+      immersiveError = "I apologize, Sir. My neural processing core is currently overheating due to exceeding daily computation limits. I must enter offline standby mode to cool down the main servers until tomorrow.";
     }
 
     return {
