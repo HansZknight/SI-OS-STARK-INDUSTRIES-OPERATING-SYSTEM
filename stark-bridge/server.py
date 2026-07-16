@@ -86,7 +86,7 @@ def execute():
         threading.Thread(target=lambda: webbrowser.open(target)).start()
         return jsonify({"status": "success", "executed": action, "query": query})
         
-    elif action == "CLOSE_WINDOW":
+    elif action == "PRESS_ALT_F4":
         import pyautogui
         print(f"[STARK BRIDGE] Closing current window")
         threading.Thread(target=lambda: pyautogui.hotkey('alt', 'f4')).start()
@@ -163,7 +163,7 @@ def execute():
             threading.Thread(target=lambda: webbrowser.open(url)).start()
         return jsonify({"status": "success", "executed": action, "query": url})
         
-    elif action == "KILL_APP":
+    elif action == "CLOSE_APP":
         app_name = data.get('query', '')
         if app_name:
             if not app_name.endswith('.exe'):
