@@ -147,6 +147,31 @@ def execute():
             threading.Thread(target=lambda: pyautogui.press('prevtrack')).start()
         return jsonify({"status": "success", "executed": action})
         
+    elif action == "OPEN_APP":
+        app_name = data.get('query', '')
+        if app_name:
+            print(f"[STARK BRIDGE] Opening generic app: {app_name}")
+            threading.Thread(target=lambda: os.system(f"start {app_name}")).start()
+        return jsonify({"status": "success", "executed": action, "query": app_name})
+        
+    elif action == "OPEN_WEB":
+        url = data.get('query', '')
+        if url:
+            if not url.startswith('http'):
+                url = 'https://' + url
+            print(f"[STARK BRIDGE] Opening generic web: {url}")
+            threading.Thread(target=lambda: webbrowser.open(url)).start()
+        return jsonify({"status": "success", "executed": action, "query": url})
+        
+    elif action == "KILL_APP":
+        app_name = data.get('query', '')
+        if app_name:
+            if not app_name.endswith('.exe'):
+                app_name += '.exe'
+            print(f"[STARK BRIDGE] Killing app: {app_name}")
+            threading.Thread(target=lambda: os.system(f"taskkill /F /IM {app_name}")).start()
+        return jsonify({"status": "success", "executed": action, "query": app_name})
+        
     elif action == "TOGGLE_DARK_MODE":
         import winreg
         print(f"[STARK BRIDGE] Toggling Dark Mode")

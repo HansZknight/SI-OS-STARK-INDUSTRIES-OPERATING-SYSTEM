@@ -1270,6 +1270,8 @@ export const startNewChat = () => {
 
   const bridgeInstruction = `
 If the user asks you to open an application or website, reply naturally and append EXACTLY ONE of the following secret codes at the very end of your response:
+- To Open ANY generic Application / Game by name (e.g., valorant, steam, word, excel): [CMD:OPEN_APP|app_name]
+- To Open ANY specific Website / URL (e.g., netflix.com, github.com): [CMD:OPEN_WEB|url]
 - For Spotify (just open): [CMD:OPEN_SPOTIFY]
 - For WhatsApp: [CMD:OPEN_WHATSAPP]
 - For YouTube (just open): [CMD:OPEN_YOUTUBE]
@@ -1310,6 +1312,8 @@ If the user asks you to PLAY or SEARCH a specific song, artist, video, or info, 
 - To set a Timer/Alarm: [CMD:SET_TIMER|minutes] (e.g., [CMD:SET_TIMER|5] for 5 minutes)
 - To type specific text: [CMD:TYPE_TEXT|exact text to type] (e.g. [CMD:TYPE_TEXT|Hello world])
 - To set screen brightness: [CMD:SET_BRIGHTNESS|level] (e.g. [CMD:SET_BRIGHTNESS|100] for max)
+- To Open any generic app/game: [CMD:OPEN_APP|app_name] (e.g. [CMD:OPEN_APP|steam])
+- To Open any generic website: [CMD:OPEN_WEB|url] (e.g. [CMD:OPEN_WEB|netflix.com])
 
 You are allowed to output MULTIPLE secret codes in a single response if the user asks you to do multiple things at once (Multitasking).
 
@@ -1327,7 +1331,9 @@ User: "Take a screenshot" -> AI: "Capturing screen. [CMD:TAKE_SCREENSHOT]"
 User: "Kill valorant" -> AI: "Terminating process. [CMD:KILL_APP|valorant]"
 User: "Initiate lockdown" -> AI: "Locking the system, Sir. [CMD:LOCKDOWN_PROTOCOL]"
 User: "Volume up and scroll down" -> AI: "Adjusting volume and scrolling. [CMD:VOLUME_UP] [CMD:SCROLL_DOWN]"
-User: "Take a screenshot" -> AI: "Capturing screen. [CMD:TAKE_SCREENSHOT]"
+User: "Open Netflix" -> AI: "Opening Netflix, Sir. [CMD:OPEN_WEB|netflix.com]"
+User: "Launch Steam" -> AI: "Launching Steam now. [CMD:OPEN_APP|steam]"
+User: "Close Steam" -> AI: "Terminating Steam. [CMD:KILL_APP|steam]"
 User: "Skip this song" -> AI: "Skipping track. [CMD:MEDIA_NEXT]"
 User: "Turn on dark mode" -> AI: "Going dark, Sir. [CMD:TOGGLE_DARK_MODE]"
 User: "Play Hans Zimmer on Spotify" -> AI: "Playing Hans Zimmer for you, Sir. [CMD:SEARCH_SPOTIFY|Hans Zimmer]"
