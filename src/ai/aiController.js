@@ -24,6 +24,7 @@ let geminiStatus = 'ONLINE' // ONLINE | WAITING_RESET
 let lastAnnounced = false
 let geminiReady = false
 let checking = false
+let offlineAnnounced = false
 
 // RATE LIMITING PROTECTION
 let lastCall = 0
@@ -1536,15 +1537,21 @@ export const sendMessage = async (message) => {
 
     chat = null
 
-    let immersiveError = "I apologize, Sir. The neural satellite connection has been lost. The system is switching to local backup mode.";
-    if (error.message?.toLowerCase().includes('quota') || error.message?.includes('429')) {
-      immersiveError = "I apologize, Sir. My neural processing core is currently overheating due to exceeding daily computation limits. I must enter offline standby mode to cool down the main servers until tomorrow.";
-    }
-
-    return {
-      success: true,
-      content: immersiveError,
-      isDemo: true
+    if (!offlineAnnounced) {
+      offlineAnnounced = true;
+      let immersiveError = "I apologize, Sir. The neural satellite connection has been lost. Switching to local backup mode.";
+      if (error.message?.toLowerCase().includes('quota') || error.message?.includes('429')) {
+        immersiveError = "I apologize, Sir. My neural processing core is currently overheating due to exceeding daily computation limits. Switching to offline standby mode.";
+      }
+      
+      const offlineReply = getJarvisResponse(message);
+      return {
+        success: true,
+        content: immersiveError + "\n\n" + offlineReply,
+        isDemo: true
+      }
+    } else {
+      return getDemoResponse(message);
     }
   }
 }
@@ -1578,6 +1585,7 @@ export const setApiKey = (key) => {
   hardQuotaBlocked = false
   quotaExceeded = false
   geminiReady = false
+  offlineAnnounced = false
   
   // Try to re-initialize
   return initializeGemini()
@@ -1595,6 +1603,7 @@ export const setProvider = (provider) => {
   hardQuotaBlocked = false
   quotaExceeded = false
   geminiReady = false
+  offlineAnnounced = false
   
   return initializeGemini()
 }
