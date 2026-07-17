@@ -72,7 +72,7 @@ const IronManSuit = () => {
       <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold text-white tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
-            MARK 85 ARMOR
+            MARK 45 ARMOR
           </h1>
           <p className="text-cyan-400 font-mono text-sm tracking-[0.2em] animate-pulse">
             DIAGNOSTICS & TELEMETRY

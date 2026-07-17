@@ -104,7 +104,7 @@ const navigationItems = [
   {
     id: 'iron-man-suit',
     label: 'Suit Diagnostics',
-    shortLabel: 'Mark 85',
+    shortLabel: 'Mark 45',
     icon: Shield,
     path: '/iron-man-suit',
     description: 'Armor telemetry and systems'
