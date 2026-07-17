@@ -255,7 +255,6 @@ const IronManSuit = () => {
             src={suitVideo} 
             autoPlay 
             loop 
-            muted 
             playsInline
             className="w-full h-full max-h-[600px] object-contain z-20 pointer-events-none transition-all duration-700 group-hover:scale-105"
             style={{ 
