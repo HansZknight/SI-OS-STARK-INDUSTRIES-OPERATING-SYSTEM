@@ -155,7 +155,7 @@ export const JarvisCore3D = ({ state = 'idle', className = '' }) => {
 
       <div className="absolute inset-0 z-10">
       <Canvas
-        camera={{ position: [0, 0, 6], fov: 45 }}
+        camera={{ position: [0, 0, 7.5], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
       >
         <ambientLight intensity={0.5} />

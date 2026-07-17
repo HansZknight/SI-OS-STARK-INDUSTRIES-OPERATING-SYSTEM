@@ -1096,9 +1096,9 @@ function AICore() {
         </div>
 
         {/* Center - Massive 3D Core & Chat Overlay */}
-        <div className="lg:col-span-2 relative flex flex-col items-center justify-center min-h-[500px]">
-          {/* Settings & Status placed absolutely or at the top of center */}
-          <div className="absolute top-0 left-0 right-0 z-50 p-2 bg-stark-dark/80 backdrop-blur border border-arc-500/20 rounded-lg">
+        <div className="lg:col-span-2 flex flex-col h-full min-h-[500px]">
+          {/* Settings & Status */}
+          <div className="w-full z-50 p-2 bg-stark-dark/80 backdrop-blur border border-arc-500/20 rounded-lg shrink-0">
              <AIStatusPanel 
               isGeminiConfigured={geminiConfigured}
               isListening={voiceState.listening}
@@ -1106,16 +1106,16 @@ function AICore() {
             />
           </div>
 
-          <div className="absolute inset-0 flex items-center justify-center -mt-20">
+          <div className="flex-1 w-full flex items-center justify-center relative min-h-[300px]">
              {/* The large core */}
              <JarvisCore3D 
                state={voiceState.listening ? 'listening' : (aiStatus === 'processing' ? 'processing' : 'idle')} 
-               className="w-full max-w-[600px] aspect-square"
+               className="w-full max-w-[500px] aspect-square"
              />
           </div>
 
           {/* Chat Interface overlay at the bottom */}
-          <div className="absolute bottom-0 left-0 right-0 z-40 flex flex-col items-center">
+          <div className="w-full z-40 flex flex-col items-center shrink-0">
             
             <button 
               onClick={() => setIsChatMinimized(!isChatMinimized)}
