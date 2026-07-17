@@ -34,7 +34,8 @@ import {
   Search,
   AlertTriangle,
   Info,
-  Zap
+  Zap,
+  ChevronDown
 } from 'lucide-react'
 
 // Stores
@@ -1025,6 +1026,7 @@ function AICore() {
   const [isLoading, setIsLoading] = useState(true)
   const [showCharts, setShowCharts] = useState(true)
   const [voiceState, setVoiceState] = useState({ listening: false, speaking: false })
+  const [isChatMinimized, setIsChatMinimized] = useState(false)
 
   useEffect(() => {
     try {
@@ -1113,11 +1115,32 @@ function AICore() {
           </div>
 
           {/* Chat Interface overlay at the bottom */}
-          <div className="absolute bottom-0 left-0 right-0 z-40 bg-stark-dark/60 backdrop-blur-md border-t border-cyan-500/30 pt-4 rounded-t-3xl shadow-[0_-10px_30px_rgba(6,182,212,0.1)]">
-            <ChatInterface 
-              isGeminiConfigured={geminiConfigured}
-              onVoiceStateChange={setVoiceState}
-            />
+          <div className="absolute bottom-0 left-0 right-0 z-40 flex flex-col items-center">
+            
+            <button 
+              onClick={() => setIsChatMinimized(!isChatMinimized)}
+              className="mb-2 px-4 py-1.5 rounded-full bg-stark-dark/80 border border-cyan-500/30 text-cyan-400 text-xs font-mono hover:bg-cyan-500/10 transition-colors flex items-center gap-2 backdrop-blur-md"
+            >
+              <MessageSquare size={14} />
+              {isChatMinimized ? 'Open Neural Chat' : 'Minimize Chat'}
+              <ChevronDown size={14} className={`transform transition-transform ${isChatMinimized ? 'rotate-180' : ''}`} />
+            </button>
+
+            <AnimatePresence>
+              {!isChatMinimized && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 100 }}
+                  className="w-full bg-stark-dark/60 backdrop-blur-md border-t border-cyan-500/30 pt-4 rounded-t-3xl shadow-[0_-10px_30px_rgba(6,182,212,0.1)]"
+                >
+                  <ChatInterface 
+                    isGeminiConfigured={geminiConfigured}
+                    onVoiceStateChange={setVoiceState}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
