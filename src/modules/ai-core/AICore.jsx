@@ -124,6 +124,7 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
   const [apiKeyInput, setApiKeyInput] = useState('')
   const [isConfiguredLocal, setIsConfiguredLocal] = useState(isGeminiConfigured)
   const [showSettings, setShowSettings] = useState(!isGeminiConfigured)
+  const [isMinimized, setIsMinimized] = useState(isGeminiConfigured) // Default to minimized if already configured
 
   useEffect(() => {
     setIsConfiguredLocal(isGeminiConfigured)
@@ -189,9 +190,23 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
           {isSpeaking && <Volume2 size={12} />}
           {status.label}
         </div>
+        
+        <button 
+          onClick={() => setIsMinimized(!isMinimized)}
+          className="text-white/40 hover:text-cyan-400 transition-colors p-2 rounded-lg bg-white/5 border border-white/10"
+          title="Toggle Control Panel"
+        >
+          <Settings size={16} />
+        </button>
       </div>
 
-      {/* API Status */}
+      {!isMinimized && (
+        <motion.div 
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          className="flex flex-col gap-4"
+        >
+          {/* API Status */}
       <div className={`mb-4 p-3 rounded-lg flex flex-col gap-3 transition-colors ${
         isConfiguredLocal 
           ? 'bg-green-400/10 border border-green-400/20' 
@@ -317,6 +332,8 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
             ))}
           </select>
         </div>
+      )}
+        </motion.div>
       )}
     </div>
   )
