@@ -164,27 +164,39 @@ export const JarvisCore3D = ({ state = 'idle', className = '' }) => {
   return (
     <div className={`relative w-full h-full min-h-[400px] sm:min-h-[500px] flex items-center justify-center ${className}`}>
       {/* Outer SVG HUD Rings */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
-        <svg viewBox="0 0 500 500" className="w-full h-full max-w-[600px] max-h-[600px] animate-[spin_40s_linear_infinite]">
-           <circle cx="250" cy="250" r="230" fill="none" stroke="#22d3ee" strokeWidth="1" strokeDasharray="4 8" />
-           <circle cx="250" cy="250" r="215" fill="none" stroke="#06b6d4" strokeWidth="2" strokeDasharray="50 20 10 20" />
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-50 z-20">
+        <svg viewBox="0 0 600 600" className="w-full h-full max-w-[600px] max-h-[600px] animate-[spin_40s_linear_infinite]">
+           {/* Complex Outer Grid Ring */}
+           <circle cx="300" cy="300" r="280" fill="none" stroke="#22d3ee" strokeWidth="1" strokeDasharray="2 4" opacity="0.3" />
+           <circle cx="300" cy="300" r="260" fill="none" stroke="#06b6d4" strokeWidth="2" strokeDasharray="60 20 10 20" />
+           
+           {/* Compass / Targeting Marks */}
+           <path d="M300 20 L300 40 M300 560 L300 580 M20 300 L40 300 M560 300 L580 300" stroke="#67e8f9" strokeWidth="3" />
+           
            {/* Tick marks */}
-           {[...Array(36)].map((_, i) => (
+           {[...Array(72)].map((_, i) => (
              <line 
                key={i}
-               x1="250" y1="30" x2="250" y2="40" 
-               stroke="#22d3ee" strokeWidth="2"
-               transform={`rotate(${i * 10} 250 250)`}
+               x1="300" y1="30" x2="300" y2={i % 6 === 0 ? "50" : "40"} 
+               stroke={i % 6 === 0 ? "#67e8f9" : "#22d3ee"} 
+               strokeWidth={i % 6 === 0 ? "2" : "1"}
+               transform={`rotate(${i * 5} 300 300)`}
              />
            ))}
         </svg>
       </div>
       
       {/* Reverse Spinning Inner HUD Ring */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-60">
-        <svg viewBox="0 0 500 500" className="w-full h-full max-w-[450px] max-h-[450px] animate-[spin_30s_linear_infinite_reverse]">
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-70 z-20">
+        <svg viewBox="0 0 500 500" className="w-full h-full max-w-[450px] max-h-[450px] animate-[spin_25s_linear_infinite_reverse]">
+           <circle cx="250" cy="250" r="210" fill="none" stroke="#22d3ee" strokeWidth="1" strokeDasharray="4 8" opacity="0.5" />
            <circle cx="250" cy="250" r="180" fill="none" stroke="#67e8f9" strokeWidth="4" strokeDasharray="100 40 20 40" />
            <circle cx="250" cy="250" r="190" fill="none" stroke="#22d3ee" strokeWidth="1" strokeDasharray="2 6" />
+           
+           {/* Inner Crosshair Nodes */}
+           {[...Array(4)].map((_, i) => (
+             <circle key={`node-${i}`} cx="250" cy="60" r="4" fill="#67e8f9" transform={`rotate(${i * 90} 250 250)`} />
+           ))}
         </svg>
       </div>
 
