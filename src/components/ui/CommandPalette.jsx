@@ -82,7 +82,7 @@ const getCommands = (navigate, actions) => [
     category: 'Navigation',
     icon: Shield,
     title: 'Go to Suit Diagnostics',
-    description: 'Mark 45 Armor telemetry',
+    description: 'Armor telemetry',
     shortcut: 'G S',
     action: () => navigate('/iron-man-suit')
   },

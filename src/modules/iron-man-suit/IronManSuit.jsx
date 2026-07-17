@@ -192,7 +192,7 @@ const IronManSuit = () => {
           </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-display font-bold text-white tracking-widest drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
-              MARK 45 ARMOR
+              IRON MAN SUIT
             </h1>
             <p className="text-cyan-400 font-mono text-sm tracking-[0.2em] animate-pulse">
               DIAGNOSTICS & TELEMETRY
