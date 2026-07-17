@@ -64,7 +64,7 @@ const CoreSphere = ({ state }) => {
     <group>
       {/* Inner Solid Core */}
       <mesh ref={innerRef}>
-        <icosahedronGeometry args={[1, 2]} />
+        <sphereGeometry args={[1, 64, 64]} />
         <meshStandardMaterial 
           color={colors.main} 
           emissive={colors.glow} 
@@ -76,7 +76,7 @@ const CoreSphere = ({ state }) => {
 
       {/* Middle Wireframe Sphere */}
       <mesh ref={middleRef}>
-        <icosahedronGeometry args={[1.5, 1]} />
+        <sphereGeometry args={[1.5, 24, 24]} />
         <meshBasicMaterial 
           color={colors.secondary} 
           wireframe={true} 
@@ -88,7 +88,7 @@ const CoreSphere = ({ state }) => {
 
       {/* Outer Point Cloud / Wireframe */}
       <mesh ref={outerRef}>
-        <icosahedronGeometry args={[2, 2]} />
+        <sphereGeometry args={[2, 16, 16]} />
         <meshBasicMaterial 
           color={colors.main} 
           wireframe={true} 
