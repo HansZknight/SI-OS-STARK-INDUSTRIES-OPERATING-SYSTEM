@@ -1083,9 +1083,16 @@ function AICore() {
           {showCharts ? 'Hide Analytics' : 'Show Analytics'}
         </button>
       </div>
+      {/* Dynamic Background Effect */}
+      <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 bg-grid-stark opacity-20" />
+        {/* Huge cyan radial glow directly behind the core */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.08)_0%,transparent_60%)] blur-3xl" />
+      </div>
 
       {/* Main Sci-Fi Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 xl:gap-8 min-h-[600px]">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 xl:gap-8 min-h-[600px] relative z-10">
         
         {/* Left Side Panels */}
         <div className="hidden lg:flex flex-col justify-between">

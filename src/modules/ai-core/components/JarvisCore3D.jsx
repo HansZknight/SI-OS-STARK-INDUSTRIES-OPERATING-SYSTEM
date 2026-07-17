@@ -9,6 +9,7 @@ const CoreSphere = ({ state }) => {
   const outerRef = useRef();
   const ringRef1 = useRef();
   const ringRef2 = useRef();
+  const particlesRef = useRef();
 
   // Define colors based on state
   // state: 'idle' (blue), 'processing' (cyan), 'listening' (orange/red)
@@ -58,19 +59,53 @@ const CoreSphere = ({ state }) => {
       ringRef2.current.rotation.y = Math.PI / 2 + Math.cos(time * 0.4) * 0.2;
       ringRef2.current.rotation.x = -time * 1.5 * speedMultiplier;
     }
+
+    if (particlesRef.current) {
+      particlesRef.current.rotation.y = time * 0.05;
+      particlesRef.current.rotation.z = time * 0.02;
+    }
   });
+
+  // Particle system geometry
+  const particlesCount = 200;
+  const positions = useMemo(() => {
+    const pos = new Float32Array(particlesCount * 3);
+    for (let i = 0; i < particlesCount; i++) {
+      const r = 2.5 + Math.random() * 1.5;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      pos[i * 3 + 2] = r * Math.cos(phi);
+    }
+    return pos;
+  }, []);
 
   return (
     <group>
-      {/* Inner Solid Core */}
+      {/* Particle Cloud */}
+      <points ref={particlesRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" count={particlesCount} array={positions} itemSize={3} />
+        </bufferGeometry>
+        <pointsMaterial size={0.03} color={colors.glow} transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+      </points>
+
+      {/* Inner Solid Core (Glassmorphism) */}
       <mesh ref={innerRef}>
         <sphereGeometry args={[1, 64, 64]} />
-        <meshStandardMaterial 
+        <meshPhysicalMaterial 
           color={colors.main} 
           emissive={colors.glow} 
-          emissiveIntensity={state === 'processing' ? 1.5 : 0.8} 
-          metalness={0.8}
-          roughness={0.2}
+          emissiveIntensity={state === 'processing' ? 1.5 : 0.4} 
+          transmission={0.9} 
+          opacity={1} 
+          metalness={0.1} 
+          roughness={0.05} 
+          ior={1.5} 
+          thickness={2} 
+          clearcoat={1} 
+          clearcoatRoughness={0.1}
         />
       </mesh>
 

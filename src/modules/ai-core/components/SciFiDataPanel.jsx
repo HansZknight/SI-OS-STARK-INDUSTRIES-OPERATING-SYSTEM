@@ -16,13 +16,16 @@ export const SciFiDataPanel = ({ title, value, percentage, data = [], invert = f
             <div key={i} className="w-2 h-5 bg-cyan-500/80 skew-x-[20deg]" />
           ))}
         </div>
-        <div className="relative border border-cyan-500/50 bg-cyan-900/20 px-4 py-1 flex-1 min-w-[150px]">
-          <h3 className="font-mono text-cyan-400 font-bold tracking-widest uppercase text-sm">
+        <div className="relative border border-cyan-500/50 bg-cyan-950/60 backdrop-blur-sm px-4 py-1 flex-1 min-w-[150px] overflow-hidden group">
+          {/* Scanning Line Effect */}
+          <div className="absolute inset-0 -translate-y-full group-hover:animate-[scan_2s_linear_infinite] bg-gradient-to-b from-transparent via-cyan-400/30 to-transparent h-[200%] w-full" />
+          
+          <h3 className="font-mono text-cyan-300 font-bold tracking-widest uppercase text-sm drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse">
             {title}
           </h3>
           {/* Angled corner cut */}
-          <div className={`absolute top-0 w-3 h-3 border-t border-cyan-400 ${invert ? 'right-0 border-r' : 'left-0 border-l'}`} />
-          <div className={`absolute bottom-0 w-3 h-3 border-b border-cyan-400 ${invert ? 'left-0 border-l' : 'right-0 border-r'}`} />
+          <div className={`absolute top-0 w-3 h-3 border-t border-cyan-300 ${invert ? 'right-0 border-r' : 'left-0 border-l'}`} />
+          <div className={`absolute bottom-0 w-3 h-3 border-b border-cyan-300 ${invert ? 'left-0 border-l' : 'right-0 border-r'}`} />
         </div>
       </div>
 
@@ -40,21 +43,23 @@ export const SciFiDataPanel = ({ title, value, percentage, data = [], invert = f
 
         {/* Circular Percentage or Content */}
         <div className="relative w-16 h-16 flex items-center justify-center shrink-0">
+          {/* Outer glow ring */}
+          <div className="absolute inset-0 rounded-full border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.15)] animate-[spin_10s_linear_infinite]" />
           <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 36 36">
             <path
-              className="text-cyan-900/30"
+              className="text-cyan-900/40"
               strokeDasharray="100, 100"
               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               stroke="currentColor" strokeWidth="2" fill="none"
             />
             <path
-              className="text-cyan-400"
+              className="text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]"
               strokeDasharray={`${percentage || 0}, 100`}
               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               stroke="currentColor" strokeWidth="2.5" fill="none"
             />
           </svg>
-          <span className="font-mono text-xs font-bold text-cyan-300 shadow-cyan-500 drop-shadow-md">
+          <span className="font-mono text-xs font-bold text-cyan-100 shadow-cyan-500 drop-shadow-[0_0_8px_rgba(34,211,238,1)]">
             {percentage}%
           </span>
         </div>
