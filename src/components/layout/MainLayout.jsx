@@ -99,7 +99,15 @@ const navigationItems = [
     shortLabel: 'Arc Reactor',
     icon: Zap,
     path: '/arc-reactor',
-    description: 'Clean energy system management'
+    description: 'Energy source monitoring'
+  },
+  {
+    id: 'iron-man-suit',
+    label: 'Suit Diagnostics',
+    shortLabel: 'Mark 85',
+    icon: Shield,
+    path: '/iron-man-suit',
+    description: 'Armor telemetry and systems'
   },
   {
     id: 'rnd-lab',

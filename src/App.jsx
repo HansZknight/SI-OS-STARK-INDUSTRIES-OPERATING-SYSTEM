@@ -30,6 +30,7 @@ import DataHub from './modules/data-hub/DataHub'
 import Security from './modules/security/Security'
 import SystemArchitecture from './modules/system-architecture/SystemArchitecture'
 import TonyMode from './modules/tony-mode/TonyMode'
+import IronManSuit from './modules/iron-man-suit/IronManSuit'
 
 // Stores
 import { useSystemStore } from './stores/systemStore'
@@ -286,6 +287,10 @@ function App({ onSystemReady }) {
                     <Route 
                       path="/rnd-lab" 
                       element={<RnDLab />} 
+                    />
+                    <Route 
+                      path="/iron-man-suit" 
+                      element={<IronManSuit />} 
                     />
                     <Route 
                       path="/data-hub" 

@@ -78,6 +78,15 @@ const getCommands = (navigate, actions) => [
     action: () => navigate('/rnd-lab')
   },
   {
+    id: 'nav-suit',
+    category: 'Navigation',
+    icon: Shield,
+    title: 'Go to Suit Diagnostics',
+    description: 'Mark 85 Armor telemetry',
+    shortcut: 'G S',
+    action: () => navigate('/iron-man-suit')
+  },
+  {
     id: 'nav-data',
     category: 'Navigation',
     icon: Database,
