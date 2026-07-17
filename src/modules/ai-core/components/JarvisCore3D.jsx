@@ -127,7 +127,33 @@ const CoreSphere = ({ state }) => {
 
 export const JarvisCore3D = ({ state = 'idle', className = '' }) => {
   return (
-    <div className={`relative w-full h-48 sm:h-64 rounded-xl overflow-hidden ${className}`}>
+    <div className={`relative w-full h-full min-h-[400px] sm:min-h-[500px] flex items-center justify-center ${className}`}>
+      {/* Outer SVG HUD Rings */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
+        <svg viewBox="0 0 500 500" className="w-full h-full max-w-[600px] max-h-[600px] animate-[spin_40s_linear_infinite]">
+           <circle cx="250" cy="250" r="230" fill="none" stroke="#22d3ee" strokeWidth="1" strokeDasharray="4 8" />
+           <circle cx="250" cy="250" r="215" fill="none" stroke="#06b6d4" strokeWidth="2" strokeDasharray="50 20 10 20" />
+           {/* Tick marks */}
+           {[...Array(36)].map((_, i) => (
+             <line 
+               key={i}
+               x1="250" y1="30" x2="250" y2="40" 
+               stroke="#22d3ee" strokeWidth="2"
+               transform={`rotate(${i * 10} 250 250)`}
+             />
+           ))}
+        </svg>
+      </div>
+      
+      {/* Reverse Spinning Inner HUD Ring */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-60">
+        <svg viewBox="0 0 500 500" className="w-full h-full max-w-[450px] max-h-[450px] animate-[spin_30s_linear_infinite_reverse]">
+           <circle cx="250" cy="250" r="180" fill="none" stroke="#67e8f9" strokeWidth="4" strokeDasharray="100 40 20 40" />
+           <circle cx="250" cy="250" r="190" fill="none" stroke="#22d3ee" strokeWidth="1" strokeDasharray="2 6" />
+        </svg>
+      </div>
+
+      <div className="absolute inset-0 z-10">
       <Canvas
         camera={{ position: [0, 0, 6], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
@@ -145,11 +171,20 @@ export const JarvisCore3D = ({ state = 'idle', className = '' }) => {
           />
         </React.Suspense>
       </Canvas>
+      </div>
       
       {/* Decorative Overlays */}
-      <div className="absolute inset-0 pointer-events-none border border-arc-500/20 rounded-xl" />
-      <div className="absolute top-2 left-2 text-[10px] font-mono text-arc-500/60 tracking-widest">
+      <div className="absolute top-4 left-4 z-20 text-[10px] font-mono text-cyan-500/80 tracking-widest bg-cyan-950/40 px-2 py-1 border border-cyan-500/30">
         J.A.R.V.I.S // NEURAL CORE // {state.toUpperCase()}
+      </div>
+      
+      {/* Center Reticle */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 opacity-30">
+        <div className="w-8 h-8 border border-cyan-400 rounded-full flex items-center justify-center">
+           <div className="w-1 h-1 bg-cyan-300 rounded-full" />
+        </div>
+        <div className="absolute w-[400px] h-px bg-cyan-500/20" />
+        <div className="absolute h-[400px] w-px bg-cyan-500/20" />
       </div>
     </div>
   );

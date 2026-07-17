@@ -66,6 +66,7 @@ import voiceService from '../../services/voiceService'
 
 import JarvisCore3D from './components/JarvisCore3D';
 import AdvancedVoiceVisualizer from './components/AdvancedVoiceVisualizer';
+import SciFiDataPanel from './components/SciFiDataPanel';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // AI STATUS PANEL
@@ -269,13 +270,8 @@ const AIStatusPanel = ({ isGeminiConfigured, isListening, isSpeaking }) => {
         )}
       </div>
 
-      {/* 3D Neural Core Visualizer */}
-      <div className="my-4">
-        <JarvisCore3D 
-          state={isListening ? 'listening' : (aiStatus === 'processing' ? 'processing' : 'idle')} 
-        />
-      </div>
-
+      {/* 3D Neural Core Visualizer moved to Main HUD */}
+      
       {/* Metrics */}
       <div className="grid grid-cols-3 gap-3 mt-4">
         <motion.div 
@@ -1006,6 +1002,8 @@ const QuickAIActions = () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function AICore() {
+  const { metrics } = useSystemStore()
+  const { aiStatus } = useAIStore()
   const [geminiConfigured, setGeminiConfigured] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [showCharts, setShowCharts] = useState(true)
@@ -1067,30 +1065,58 @@ function AICore() {
         </button>
       </div>
 
-      {/* Main Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left - Status & Memory */}
-        <div className="space-y-6">
-          <AIStatusPanel 
-            isGeminiConfigured={geminiConfigured}
-            isListening={voiceState.listening}
-            isSpeaking={voiceState.speaking}
-          />
-          <MemoryPanel />
-          <QuickAIActions />
+      {/* Main Sci-Fi Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 xl:gap-8 min-h-[600px]">
+        
+        {/* Left Side Panels */}
+        <div className="hidden lg:flex flex-col justify-between">
+          <SciFiDataPanel title="SYSTEM OP" value="NORMAL" percentage={98} />
+          <SciFiDataPanel title="CORE TEMP" value={`${metrics?.temp || 45.2}°C`} percentage={metrics?.temp || 45} />
+          <SciFiDataPanel title="MEM ALLOC" value={`${metrics?.ram || 42}%`} percentage={metrics?.ram || 42} />
+          <SciFiDataPanel title="CPU LOAD" value={`${metrics?.cpu || 15}%`} percentage={metrics?.cpu || 15} />
         </div>
 
-        {/* Center - Chat */}
-        <div className="lg:col-span-1">
-          <ChatInterface 
-            isGeminiConfigured={geminiConfigured}
-            onVoiceStateChange={setVoiceState}
-          />
+        {/* Center - Massive 3D Core & Chat Overlay */}
+        <div className="lg:col-span-2 relative flex flex-col items-center justify-center min-h-[500px]">
+          {/* Settings & Status placed absolutely or at the top of center */}
+          <div className="absolute top-0 left-0 right-0 z-50 p-2 bg-stark-dark/80 backdrop-blur border border-arc-500/20 rounded-lg">
+             <AIStatusPanel 
+              isGeminiConfigured={geminiConfigured}
+              isListening={voiceState.listening}
+              isSpeaking={voiceState.speaking}
+            />
+          </div>
+
+          <div className="absolute inset-0 flex items-center justify-center -mt-20">
+             {/* The large core */}
+             <JarvisCore3D 
+               state={voiceState.listening ? 'listening' : (aiStatus === 'processing' ? 'processing' : 'idle')} 
+               className="w-full max-w-[600px] aspect-square"
+             />
+          </div>
+
+          {/* Chat Interface overlay at the bottom */}
+          <div className="absolute bottom-0 left-0 right-0 z-40 bg-stark-dark/60 backdrop-blur-md border-t border-cyan-500/30 pt-4 rounded-t-3xl shadow-[0_-10px_30px_rgba(6,182,212,0.1)]">
+            <ChatInterface 
+              isGeminiConfigured={geminiConfigured}
+              onVoiceStateChange={setVoiceState}
+            />
+          </div>
         </div>
 
-        {/* Right - Capabilities */}
-        <div>
-          <CapabilitiesPanel isGeminiConfigured={geminiConfigured} />
+        {/* Right Side Panels */}
+        <div className="hidden lg:flex flex-col justify-between">
+          <SciFiDataPanel title="AI NEURAL" value={aiStatus.toUpperCase()} percentage={metrics?.aiLoad || 15} invert={true} />
+          <SciFiDataPanel title="NETWORK" value={metrics?.ping ? `${metrics.ping}ms` : '32ms'} percentage={100} invert={true} />
+          <SciFiDataPanel title="BATTERY" value={metrics?.battery ? `${metrics.battery}%` : '100%'} percentage={metrics?.battery || 100} invert={true} />
+          <SciFiDataPanel title="UPTIME" value="99.9%" percentage={99} invert={true} />
+        </div>
+        
+        {/* Mobile View Capabilities (Hidden on Desktop since Desktop has the SciFi UI) */}
+        <div className="block lg:hidden">
+           <MemoryPanel />
+           <QuickAIActions />
+           <CapabilitiesPanel isGeminiConfigured={geminiConfigured} />
         </div>
       </div>
 
